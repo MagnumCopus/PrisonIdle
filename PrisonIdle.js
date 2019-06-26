@@ -38,7 +38,7 @@ function Prisoner() {
     var vel = createVector(0, 0);
     var horizontalAcceleration = .5;
     var jumpAcceleration = 4.5;
-    var maxHorizontalSpeed = 3;
+    var maxHorizontalSpeed = 4;
     var inAir = true;
     var jumpReleased = true;
   
@@ -56,12 +56,12 @@ function Prisoner() {
         var onFloor = false;
         
         if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
-            if (!inAir) vel.x -= maxHorizontalSpeed;
+            if (!inAir) vel.x -= horizontalAcceleration;
             else vel.x -= horizontalAcceleration/2;
             horizontalKeyPressed = true;
         }
         if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
-            if (!inAir) vel.x += maxHorizontalSpeed;
+            if (!inAir) vel.x += horizontalAcceleration;
             else vel.x += horizontalAcceleration/2;
             horizontalKeyPressed = true;
         }
