@@ -1,10 +1,13 @@
 
 var prisoner;
-var currentMine;
 var money = 0;
 var lastSelectedTile = -1;
 var currentlyBreaking = -1;
 var lastFrames = [];
+
+var currentMine;
+var shop;
+var AMine;
 
 var TILESIZE = 40;
 var GRAVITY = .2;
@@ -16,8 +19,15 @@ function preload() {
 function setup() {
     createCanvas(1280, 720);
     
+    shop = new Shop();
+    AMine = new AMine();
+    
+    console.log(shop);
+    shop.setRightRoom(AMine);
+    AMine.setLeftRoom(shop);
+    
     prisoner = new Prisoner();
-    currentMine = new AMine();
+    currentMine = shop;
 }
 
 function draw() {
@@ -25,16 +35,12 @@ function draw() {
     fill(33, 30, 22);
     rect(0, 280, 1280, 440);
     fill(134, 198, 250);
-    rect(40, 0, 1200, 280);
+    rect(0, 0, 1290, 280);
     
     fill(34, 34, 34);
-    textAlign(LEFT, BASELINE);
+    textAlign(CENTER, BASELINE);
     textSize(200);
-    text("A", 575, 200);
-    
-    fill(255);
-    textSize(20);
-    text(money.toFixed(2) + " $", 87, 140);
+    text(currentMine.name, 40, 50, 1200, 300);
     
     currentMine.display();
     currentMine.update();

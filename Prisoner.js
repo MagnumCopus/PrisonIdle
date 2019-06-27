@@ -30,7 +30,7 @@ function Prisoner() {
             else vel.x += horizontalAcceleration/2;
             horizontalKeyPressed = true;
         }
-        if (keyIsDown(UP_ARROW) || keyIsDown(87)) {
+        if (keyIsDown(32) || keyIsDown(UP_ARROW) || keyIsDown(87)) {
             if (jumpReleased && !inAir) {
                 vel.y -= jumpAcceleration;
                 jumpReleased = false;
@@ -44,23 +44,19 @@ function Prisoner() {
         if (vel.x < -maxHorizontalSpeed) vel.x = -maxHorizontalSpeed;
         
         // Check window borders
-        if (loc.x + vel.x < 0) {
-            loc.x = 0;
-            vel.x = 0;
+        if (loc.x + pWidth < -5) {
+            currentMine = currentMine.leftRoom;
+            loc.x = width + 5;
         }
-        if (loc.y + vel.y < 0) {
-            loc.y = 0;
-            vel.y = 0;
+        if (loc.y + pHeight < -5) {
+          
         }
-        if (loc.x + vel.x + pWidth > width) {
-            loc.x = width - pWidth;
-            vel.x = 0;
+        if (loc.x > width + 5) {
+            currentMine = currentMine.rightRoom;
+            loc.x = -pWidth - 5;
         }
-        if (loc.y + vel.y + pHeight > height) {
-            loc.y = height - pHeight;
-            vel.y = 0;
-            if (!horizontalKeyPressed) vel.x = vel.x/1.3;
-            onFloor = true;
+        if (loc.y > height + 5) {
+            
         }
         
         // Barrier Collisions
@@ -146,7 +142,7 @@ function Prisoner() {
                     //console.log("2");
                 }
                 // Left Wall
-                if (loc.x + vel.x + pWidth > sellBlock.getX() && loc.x + vel.x < sellBlock.getX() && loc.y + pHeight > tile.getY() && loc.y < tile.getY() + TILESIZE) {
+                if (loc.x + vel.x + pWidth > sellBlock.getX() && loc.x + vel.x < sellBlock.getX() && loc.y + pHeight > sellBlock.getY() && loc.y < sellBlock.getY() + TILESIZE) {
                     loc.x = sellBlock.getX() - pWidth;
                     vel.x = 0;
                     //console.log("3");
