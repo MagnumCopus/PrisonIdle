@@ -24,7 +24,6 @@ function SellBlock(xLoc, yLoc, id) {
     }
     
     this.sell = function() {
-        console.log("sell");
         if (id >= 0) {
             if (sellQuantity == "All" || tileDetails[id].count < sellQuantity) {
                 money += tileDetails[id].count * tileDetails[id].price;
@@ -40,5 +39,6 @@ function SellBlock(xLoc, yLoc, id) {
             else if (sellQuantity == 25) sellQuantity = "All";
             else if (sellQuantity == "All") sellQuantity = 1;
         }
+        saveState();
     }
 }

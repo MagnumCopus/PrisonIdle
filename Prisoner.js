@@ -49,6 +49,7 @@ function Prisoner() {
         if (loc.x + pWidth < -5) {
             currentMine = currentMine.leftRoom;
             loc.x = width + 5;
+            saveState();
         }
         if (loc.y + pHeight < -5) {
           
@@ -56,6 +57,7 @@ function Prisoner() {
         if (loc.x > width + 5) {
             currentMine = currentMine.rightRoom;
             loc.x = -pWidth - 5;
+            saveState();
         }
         if (loc.y > height + 5) {
             
@@ -192,6 +194,14 @@ function Prisoner() {
     
     this.getY = function() {
         return loc.y;
+    }
+    
+    this.setX = function(x) {
+        loc.x = x;
+    }
+    
+    this.setY = function(y) {
+        loc.y = y;
     }
     
     this.getWidth = function() {

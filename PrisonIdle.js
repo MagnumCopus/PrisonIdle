@@ -29,6 +29,8 @@ function setup() {
     
     prisoner = new Prisoner();
     currentMine = AMine;
+    
+    loadState();
 }
 
 function draw() {
@@ -52,6 +54,28 @@ function draw() {
     textSize(12);
     textAlign(LEFT, BASELINE);
     text(parseInt(frames / lastFrames.length, 10), 1253, 25);
+}
+
+function saveState() {
+    localStorage.setItem('money', JSON.stringify(money));
+    localStorage.setItem('mine', JSON.stringify(AMine.tiles));
+    localStorage.setItem('xLoc', JSON.stringify(prisoner.getX()));
+    localStorage.setItem('yLoc', JSON.stringify(prisoner.getY()));
+    localStorage.setItem('dirtCount', JSON.stringify(tileDetails[0].count));
+    localStorage.setItem('stoneCount', JSON.stringify(tileDetails[1].count));
+    localStorage.setItem('coalCount', JSON.stringify(tileDetails[2].count));
+}
+
+function loadState() {
+    localStorage.removeItem('mine');
+    if (JSON.parse(localStorage.getItem('money')) != null) money = parseFloat(JSON.parse(localStorage.getItem('money')));
+    if (JSON.parse(localStorage.getItem('mine')) != null) AMine.tiles = JSON.parse(localStorage.getItem('mine'));
+    if (JSON.parse(localStorage.getItem('xLoc')) != null) prisoner.setX(JSON.parse(localStorage.getItem('xLoc')));
+    if (JSON.parse(localStorage.getItem('yLoc')) != null) prisoner.setY(JSON.parse(localStorage.getItem('yLoc')));
+    if (JSON.parse(localStorage.getItem('dirtCount')) != null) tileDetails[0].count = parseInt(JSON.parse(localStorage.getItem('dirtCount')));
+    if (JSON.parse(localStorage.getItem('stoneCount')) != null) tileDetails[1].count = parseInt(JSON.parse(localStorage.getItem('stoneCount')));
+    if (JSON.parse(localStorage.getItem('coalCount')) != null) tileDetails[2].count = parseInt(JSON.parse(localStorage.getItem('coalCount')));
+    console.log(AMine.tiles);
 }
 
 function mousePressed() {

@@ -11,6 +11,7 @@ function Tile(xLoc, yLoc, index, id) {
   var inReach = false;
   var breaking = false;
   var intact = true;
+  this.test = false;
   
   var breakStart = 0;
   var breakState = 0;
@@ -41,6 +42,7 @@ function Tile(xLoc, yLoc, index, id) {
       if (breakState > (breakTime / miningSpeed)) {
         intact = false;
         tileDetails[id].count++;
+        saveState();
       }
     }
     
