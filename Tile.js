@@ -1,7 +1,7 @@
 var tileDetails = [
-    {name:'dirt',    id: 0, breakTime: 1000, tColor: '#735A37', price: .1, count: 0},
-    {name:'stone',   id: 1, breakTime: 2000, tColor: '#939393', price: .3, count: 0},
-    {name:'coal',    id: 2, breakTime: 5000, tColor: '#2C2925', price: 1.0, count: 0}
+    {name:'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0},
+    {name:'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0},
+    {name:'coal',    id: 2, breakTime: 3000, tColor: '#2C2925', price: 1.0, count: 0}
 ];
 
 function Tile(xLoc, yLoc, index, id) {
@@ -21,7 +21,7 @@ function Tile(xLoc, yLoc, index, id) {
   this.display = function() {
     if (intact) { 
       noStroke();
-      var size = (breakTime - breakState) / breakTime * TILESIZE;
+      var size = ((breakTime / miningSpeed) - breakState) / (breakTime / miningSpeed) * TILESIZE;
       var offset = map(size, 0, TILESIZE, TILESIZE/2, 0);
       if (mouseHovering && breakable) {
           stroke(0);
@@ -38,19 +38,21 @@ function Tile(xLoc, yLoc, index, id) {
     if (intact && breaking) {
       breakState = millis() - breakStart;
       //tColor = map(breakState, breakTime, 0, 0, 255);
-      if (breakState > breakTime) {
+      if (breakState > (breakTime / miningSpeed)) {
         intact = false;
         tileDetails[id].count++;
       }
     }
     
     // Check if tile is exposed to air
-    if (index < 24) breakable = true;
+    var tileHeight = currentMine.tileHeight;
+    var tileWidth = currentMine.tileWidth;
+    if (index < tileWidth || index % tileWidth == 0 || (index + 1) % tileWidth == 0) breakable = true;
     else {
-      if (!currentMine.tiles[index-24].getIntact()) breakable = true;
-      else if (index + 24 < 240 && !currentMine.tiles[index+24].getIntact()) breakable = true;
-      else if (index % 24 != 0 && !currentMine.tiles[index-1].getIntact()) breakable = true;
-      else if (index+1 < 240 && index+1 % 24 != 0 && !currentMine.tiles[index+1].getIntact()) breakable = true;
+      if (!currentMine.tiles[index-tileWidth].getIntact()) breakable = true;
+      else if (index + tileWidth < tileHeight * tileWidth && !currentMine.tiles[index+tileWidth].getIntact()) breakable = true;
+      else if (index % tileWidth != 0 && !currentMine.tiles[index-1].getIntact()) breakable = true;
+      else if (index+1 < tileWidth * tileHeight && index+1 % tileWidth != 0 && !currentMine.tiles[index+1].getIntact()) breakable = true;
       else breakable = false;
     }
     

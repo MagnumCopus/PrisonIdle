@@ -1,7 +1,10 @@
 function AMine() {
      this.walls = [];
      this.tiles = [];
+     this.tileHeight = 10;
+     this.tileWidth = 22;
      this.sellBlocks = [];
+     this.ladders = [];
      this.name = "A";
      
      this.leftRoom;
@@ -16,17 +19,25 @@ function AMine() {
      this.walls.push(new Wall(1120, 280, 200, 40));
      this.walls.push(new Wall(1240, 0, 40, 280));
      
-     for (var y = 0; y < 10; y++) {
-         for (var x = 0; x < 24; x++) {
+     this.ladders.push(new Ladder(160, 280, 10, 400));
+     this.ladders.push(new Ladder(1110, 280, 10, 400));
+     
+     for (var y = 0; y < this.tileHeight; y++) {
+         for (var x = 0; x < this.tileWidth; x++) {
              var id = random(100);
              if (id < 70) { id = 0; }
              else if (id < 95) { id = 1; }
              else { id = 2; }
-             this.tiles.push(new Tile(160 + x * 40, 280 + y * 40, (y * 24) + x, id));
+             this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, (y * this.tileWidth) + x, id));
          }
      }
      
      this.display = function() {
+         fill(34, 34, 34);
+         textAlign(CENTER, BASELINE);
+         textSize(200);
+         text("A", 40, 50, 1200, 300);
+         
          for (var i = 0; i < this.sellBlocks.length; i++) {
              this.sellBlocks[i].display();
          }
@@ -38,6 +49,10 @@ function AMine() {
          for (var i = 0; i < this.tiles.length; i++) {
              this.tiles[i].display();
          } 
+         
+         for (var i = 0; i < this.ladders.length; i++) {
+             this.ladders[i].display();
+         }
      }
      
      this.update = function() {

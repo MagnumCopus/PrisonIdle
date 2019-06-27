@@ -4,6 +4,7 @@ var money = 0;
 var lastSelectedTile = -1;
 var currentlyBreaking = -1;
 var lastFrames = [];
+var miningSpeed = 1;
 
 var currentMine;
 var shop;
@@ -27,7 +28,7 @@ function setup() {
     AMine.setLeftRoom(shop);
     
     prisoner = new Prisoner();
-    currentMine = shop;
+    currentMine = AMine;
 }
 
 function draw() {
@@ -36,11 +37,6 @@ function draw() {
     rect(0, 280, 1280, 440);
     fill(134, 198, 250);
     rect(0, 0, 1290, 280);
-    
-    fill(34, 34, 34);
-    textAlign(CENTER, BASELINE);
-    textSize(200);
-    text(currentMine.name, 40, 50, 1200, 300);
     
     currentMine.display();
     currentMine.update();

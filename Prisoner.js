@@ -1,5 +1,5 @@
 function Prisoner() {
-    var pWidth = TILESIZE * (9/10);
+    var pWidth = TILESIZE * .7;
     var pHeight = (2*TILESIZE) * (5/6);
     
     var loc = createVector(width/2 - TILESIZE/2, 100);
@@ -14,6 +14,8 @@ function Prisoner() {
         noStroke();
         fill(250, 164, 78); // orange
         rect(loc.x, loc.y, pWidth, pHeight);
+        fill('#FFE0C4');
+        rect(loc.x, loc.y, pWidth, pHeight/3);
     }
     
     this.update = function() {
@@ -59,6 +61,25 @@ function Prisoner() {
             
         }
         
+        // Ladder Collisions
+        if (currentMine.ladders != null) {
+            for (var i = 0; i < currentMine.ladders.length; i++) {
+                var ladder = currentMine.ladders[i];
+                // Feet inside ladder
+                if (loc.y + vel.y + pHeight > ladder.getY() && loc.y + pHeight <= ladder.getY() + ladder.getHeight() && loc.x + pWidth > ladder.getX() && loc.x < ladder.getX() + ladder.getWidth()) {
+                    if (!horizontalKeyPressed) vel.x = vel.x/1.3;
+                    vel.y = 0;
+                    if (keyIsDown(32) || keyIsDown(UP_ARROW) || keyIsDown(87)) {
+                        vel.y = -2; 
+                    } else if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
+                        vel.y = 4; 
+                    }
+                    inAir = true;
+                    jumpReleased = false;
+                }
+            }
+        }
+        
         // Barrier Collisions
         for (var i = 0; i < currentMine.walls.length; i++) {
             var wall = currentMine.walls[i];
@@ -76,13 +97,13 @@ function Prisoner() {
             }
             // Left Wall
             if (loc.x + vel.x + pWidth > wall.getX() && loc.x + vel.x < wall.getX() && loc.y + pHeight > wall.getY() && loc.y < wall.getY() + wall.getHeight()) {
-                console.log(loc.y);
                 loc.x = wall.getX() - pWidth;
                 vel.x = 0;
                 //console.log("3");
             }
             // Floor
             if (loc.y + vel.y + pHeight > wall.getY() && loc.y + vel.y < wall.getY() && (loc.x > wall.getX() - pWidth && loc.x < wall.getX() + wall.getWidth())) {
+                console.log(loc.y);
                 loc.y = wall.getY() - pHeight;
                 vel.y = 0;
                 if (!horizontalKeyPressed) vel.x = vel.x/1.3;
