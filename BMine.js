@@ -1,11 +1,11 @@
-function AMine() {
+function BMine() {
      this.walls = [];
      this.tiles = [];
      this.tileHeight = 10;
      this.tileWidth = 22;
      this.sellBlocks = [];
      this.ladders = [];
-     this.name = "A";
+     this.name = "B";
      
      this.leftRoom;
      this.rightRoom;
@@ -17,7 +17,7 @@ function AMine() {
      this.walls.push(new Wall(160, 680, 960, 40));
      this.walls.push(new Wall(1120, 320, 40, 400));
      this.walls.push(new Wall(1120, 280, 200, 40));
-     this.walls.push(new Wall(1240, 0, 40, 200));
+     this.walls.push(new Wall(1240, 0, 40, 280));
      
      this.ladders.push(new Ladder(160, 280, 10, 400));
      this.ladders.push(new Ladder(1110, 280, 10, 400));
@@ -25,8 +25,8 @@ function AMine() {
      for (var y = 0; y < this.tileHeight; y++) {
          for (var x = 0; x < this.tileWidth; x++) {
              var id = random(100);
-             if (id < 70) { id = 0; }
-             else if (id < 95) { id = 1; }
+             if (id < 40) { id = 0; }
+             else if (id < 75) { id = 1; }
              else { id = 2; }
              this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, (y * this.tileWidth) + x, id));
          }
@@ -36,7 +36,7 @@ function AMine() {
          fill(34, 34, 34);
          textAlign(CENTER, BASELINE);
          textSize(200);
-         text("A", 40, 50, 1200, 300);
+         text("B", 40, 50, 1200, 300);
          
          for (var i = 0; i < this.sellBlocks.length; i++) {
              this.sellBlocks[i].display();

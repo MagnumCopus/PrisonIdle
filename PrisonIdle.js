@@ -9,6 +9,7 @@ var miningSpeed = 1;
 var currentMine;
 var shop;
 var AMine;
+var BMine;
 
 var TILESIZE = 40;
 var GRAVITY = .2;
@@ -22,10 +23,13 @@ function setup() {
     
     shop = new Shop();
     AMine = new AMine();
+    BMine = new BMine();
     
     console.log(shop);
     shop.setRightRoom(AMine);
     AMine.setLeftRoom(shop);
+    AMine.setRightRoom(BMine);
+    BMine.setLeftRoom(AMine);
     
     prisoner = new Prisoner();
     currentMine = AMine;
