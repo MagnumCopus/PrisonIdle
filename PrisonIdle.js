@@ -14,6 +14,9 @@ var BMine;
 var TILESIZE = 40;
 var GRAVITY = .2;
 
+var breakAnimation
+var dirtSprite;
+
 function preload() {
   
 }
@@ -24,6 +27,9 @@ function setup() {
     shop = new Shop();
     AMine = new AMine();
     BMine = new BMine();
+    
+    breakAnimation = loadImage('Resources/breakAnimation.png');
+    dirtSprite = loadImage('Resources/dirt.png');
     
     //console.log(shop);
     shop.setRightRoom(AMine);

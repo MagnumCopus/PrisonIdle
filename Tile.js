@@ -22,16 +22,40 @@ function Tile(xLoc, yLoc, index, id) {
   this.display = function() {
     if (this.intact) { 
       noStroke();
-      var size = ((breakTime / miningSpeed) - breakState) / (breakTime / miningSpeed) * TILESIZE;
-      var offset = map(size, 0, TILESIZE, TILESIZE/2, 0);
-      if (mouseHovering && breakable) {
-          stroke(0);
-          strokeWeight(1);
-          size -= 1;
+      
+      var size = TILESIZE;
+      var offset = 0;
+      if (breakable) {
+          if (mouseHovering) {
+              stroke(0);
+              strokeWeight(1);
+              if (this.id == 0) {
+                  size -= 2;
+                  offset += 1;
+              } else {
+                  size -= 1;   
+              }
+          }
+          fill(tColor);
+          if (this.id == 0 && size > 2) image(dirtSprite, xLoc + offset, yLoc + offset, size, size);
+          else rect(xLoc + offset, yLoc + offset, size, size);
       }
-      if (breakable) fill(tColor);
-      else fill(0);
-      if (size > 2) rect(xLoc + offset, yLoc + offset, size, size);
+      else {
+          fill(0);
+          rect(xLoc, yLoc, TILESIZE, TILESIZE);
+      }
+      
+      var percentBroken = ((breakTime / miningSpeed) - breakState) / (breakTime / miningSpeed);
+      //console.log(percentBroken);
+      var animationIndex = percentBroken / 1.255 * 10;
+      animationIndex = parseInt(map(animationIndex, 8, 0, 0, 8));
+      if (animationIndex != 0) {
+          var aY = parseInt(animationIndex / 3);
+          var aX = animationIndex % 3;
+          console.log(aX + " " + aY);
+          var crop = breakAnimation.get(aX * 40, aY * 40, 40, 40);
+          image(crop, xLoc, yLoc);
+      }
     }
   }
   
