@@ -53,7 +53,7 @@ function BMine() {
          var formattedSecs = ("0" + secs).slice(-2);
          textSize(20);
          fill(255);
-         text(formattedHours + ":" + formattedMins + ":" + formattedSecs, 1180, 30);
+         text(formattedHours + ":" + formattedMins + ":" + formattedSecs, 633, 235);
          
          for (var i = 0; i < this.sellBlocks.length; i++) {
              this.sellBlocks[i].display();
