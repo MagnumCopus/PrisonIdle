@@ -7,7 +7,8 @@ function SellBlock(xLoc, yLoc, id) {
         noStroke();
         if (id >= 0) fill(color(tileDetails[id].tColor));
         else fill(80);
-        rect(loc.x, loc.y, TILESIZE, TILESIZE);
+        if (id >= 0 && tileDetails[id].sprite != null) image(tileDetails[id].sprite, loc.x, loc.y, TILESIZE, TILESIZE);
+        else rect(loc.x, loc.y, TILESIZE, TILESIZE);
         fill(255);
         textSize(20);
         textAlign(CENTER, CENTER);

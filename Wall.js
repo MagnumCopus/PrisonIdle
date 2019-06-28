@@ -3,8 +3,11 @@ function Wall(xLoc, yLoc, wWidth, wHeight) {
     
     this.display = function() {
         noStroke();
-        fill(80);
-        rect(loc.x, loc.y, wWidth, wHeight);
+        for (var y = 0; y < wHeight; y += 40) {
+            for (var x = 0; x < wWidth; x += 40) {
+                image(wallSprite, loc.x + x, loc.y + y, TILESIZE, TILESIZE);    
+            }
+        }
     }
     
     this.getX = function() {

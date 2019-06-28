@@ -22,8 +22,8 @@ function AMine() {
      this.walls.push(new Wall(1120, 280, 200, 40));
      this.walls.push(new Wall(1240, 0, 40, 200));
      
-     this.ladders.push(new Ladder(160, 280, 10, 400));
-     this.ladders.push(new Ladder(1110, 280, 10, 400));
+     this.ladders.push(new Ladder(160, 280, 12, 400, "left"));
+     this.ladders.push(new Ladder(1110, 280, 12, 400, "right"));
      
      for (var y = 0; y < this.tileHeight; y++) {
          for (var x = 0; x < this.tileWidth; x++) {
@@ -37,6 +37,11 @@ function AMine() {
      
      this.display = function() {
          //console.log(this.lastReset);
+         fill(33, 30, 22);
+         rect(0, 280, 1280, 440);
+         fill(134, 198, 250);
+         rect(0, 0, 1290, 280);
+         
          fill(34, 34, 34);
          textAlign(CENTER, BASELINE);
          textSize(200);
@@ -53,7 +58,7 @@ function AMine() {
          var secs = parseInt(timeLeft / 1000);
          var formattedSecs = ("0" + secs).slice(-2);
          textSize(20);
-         fill(255);
+         fill(34, 34, 34);
          text(formattedHours + ":" + formattedMins + ":" + formattedSecs, 633, 235);
          
          for (var i = 0; i < this.sellBlocks.length; i++) {

@@ -11,11 +11,19 @@ var shop;
 var AMine;
 var BMine;
 
+var tileDetails;
+var inventory = [];
+
 var TILESIZE = 40;
 var GRAVITY = .2;
 
+var wallSprite;
+var ladderLeftSprite;
+var ladderRightSprite;
 var breakAnimation
 var dirtSprite;
+var stoneSprite;
+var coalSprite;
 
 function preload() {
   
@@ -24,12 +32,27 @@ function preload() {
 function setup() {
     createCanvas(1280, 720);
     
+    wallSprite = loadImage('Resources/wall.png');
+    ladderLeftSprite = loadImage('Resources/ladderLeft.png');
+    ladderRightSprite = loadImage('Resources/ladderRight.png');
+    breakAnimation = loadImage('Resources/breakAnimation.png');
+    dirtSprite = loadImage('Resources/dirt.png');
+    stoneSprite = loadImage('Resources/stone.png');
+    coalSprite = loadImage('Resources/coal.png');
+    
+    tileDetails = [
+        {name:'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0, sprite: dirtSprite},
+        {name:'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, sprite: stoneSprite},
+        {name:'coal',    id: 2, breakTime: 3000, tColor: '#2C2925', price: 1.0, count: 0, sprite: coalSprite}
+    ];
+    
+    this.inventory.push(new SellBlock(80, 120, 0));
+    this.inventory.push(new SellBlock(160, 120, 1));
+    this.inventory.push(new SellBlock(240, 120, 2));
+    
     shop = new Shop();
     AMine = new AMine();
     BMine = new BMine();
-    
-    breakAnimation = loadImage('Resources/breakAnimation.png');
-    dirtSprite = loadImage('Resources/dirt.png');
     
     //console.log(shop);
     shop.setRightRoom(AMine);
@@ -45,13 +68,22 @@ function setup() {
 
 function draw() {
     background(0);
-    fill(33, 30, 22);
-    rect(0, 280, 1280, 440);
-    fill(134, 198, 250);
-    rect(0, 0, 1290, 280);
     
     currentMine.display();
     currentMine.update();
+    
+    fill(34);
+    //rect(80, 40, 120, 40);
+    //fill(255);
+    textSize(20);
+    textAlign(LEFT, BASELINE);
+    text("$ " + money.toFixed(2), 90, 67);
+    
+    if (currentMine.name != "Shop") {
+        for (var i = 0; i < inventory.length; i++) {
+            //this.inventory[i].display();
+        }  
+    }
     
     AMine.checkReset();
     BMine.checkReset();

@@ -72,9 +72,9 @@ function Prisoner() {
                     if (!horizontalKeyPressed) vel.x = vel.x/1.3;
                     vel.y = 0;
                     if (keyIsDown(32) || keyIsDown(UP_ARROW) || keyIsDown(87)) {
-                        vel.y = -2; 
+                        vel.y = -4.5; 
                     } else if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
-                        vel.y = 4; 
+                        vel.y = 6; 
                     }
                     inAir = true;
                     jumpReleased = false;

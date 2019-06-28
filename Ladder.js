@@ -1,10 +1,13 @@
-function Ladder(xLoc, yLoc, wWidth, wHeight) {
+function Ladder(xLoc, yLoc, wWidth, wHeight, direction) {
     var loc = createVector(xLoc, yLoc);
     
     this.display = function() {
         noStroke();
         fill('#953403');
-        rect(loc.x, loc.y, wWidth, wHeight);
+        for (var y = 0; y < wHeight; y += 40) {
+            if (direction == "right") image(ladderRightSprite, loc.x, loc.y + y, wWidth, TILESIZE);
+            else image(ladderLeftSprite, loc.x, loc.y + y, wWidth, TILESIZE);
+        }
     }
     
     this.getX = function() {

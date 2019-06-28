@@ -1,9 +1,3 @@
-var tileDetails = [
-    {name:'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0},
-    {name:'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0},
-    {name:'coal',    id: 2, breakTime: 3000, tColor: '#2C2925', price: 1.0, count: 0}
-];
-
 function Tile(xLoc, yLoc, index, id) {
   var loc = createVector(xLoc, yLoc);
   var mouseHovering = false;
@@ -29,7 +23,7 @@ function Tile(xLoc, yLoc, index, id) {
           if (mouseHovering) {
               stroke(0);
               strokeWeight(1);
-              if (this.id == 0) {
+              if (details.sprite != null) {
                   size -= 2;
                   offset += 1;
               } else {
@@ -37,7 +31,7 @@ function Tile(xLoc, yLoc, index, id) {
               }
           }
           fill(tColor);
-          if (this.id == 0 && size > 2) image(dirtSprite, xLoc + offset, yLoc + offset, size, size);
+          if (details.sprite != null) image(details.sprite, xLoc + offset, yLoc + offset, size, size);
           else rect(xLoc + offset, yLoc + offset, size, size);
       }
       else {
@@ -52,7 +46,7 @@ function Tile(xLoc, yLoc, index, id) {
       if (animationIndex != 0) {
           var aY = parseInt(animationIndex / 3);
           var aX = animationIndex % 3;
-          console.log(aX + " " + aY);
+          //console.log(aX + " " + aY);
           var crop = breakAnimation.get(aX * 40, aY * 40, 40, 40);
           image(crop, xLoc, yLoc);
       }
@@ -90,6 +84,7 @@ function Tile(xLoc, yLoc, index, id) {
   
   this.checkMouse = function() {
     if (breakable && inReach && mouseX >= loc.x && mouseX < loc.x + 40 && mouseY >= loc.y && mouseY < loc.y + 40) {
+      //console.log(this.id);
       lastSelectedTile = index;
       mouseHovering = true;
     }
