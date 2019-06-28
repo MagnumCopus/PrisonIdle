@@ -1,6 +1,4 @@
-var sellQuantity = 1;
-
-function SellBlock(xLoc, yLoc, id) {
+function UpgradeBlock(xLoc, yLoc, id) {
     var loc = createVector(xLoc, yLoc);
     
     this.display = function() {
@@ -24,21 +22,10 @@ function SellBlock(xLoc, yLoc, id) {
         return loc.y;   
     }
     
-    this.sell = function() {
-        if (id >= 0) {
-            if (sellQuantity == "All" || tileDetails[id].count < sellQuantity) {
-                money += tileDetails[id].count * tileDetails[id].price;
-                tileDetails[id].count = 0;
-            }
-            else {
-                tileDetails[id].count -= sellQuantity;
-                money += tileDetails[id].price * sellQuantity;
-            }
-        } else {
-            if (sellQuantity == 1) sellQuantity = 5;
-            else if (sellQuantity == 5) sellQuantity = 25;
-            else if (sellQuantity == 25) sellQuantity = "All";
-            else if (sellQuantity == "All") sellQuantity = 1;
+    this.upgrade = function() {
+        // Pickaxe upgrade
+        if (id == 0) {
+            
         }
         //saveState();
     }

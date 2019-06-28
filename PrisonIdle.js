@@ -12,11 +12,14 @@ var AMine;
 var BMine;
 
 var tileDetails;
+var pickaxeDetails;
+var upgradeDetails;
 var inventory = [];
 
 var TILESIZE = 40;
 var GRAVITY = .2;
 
+var font;
 var wallSprite;
 var ladderLeftSprite;
 var ladderRightSprite;
@@ -26,12 +29,13 @@ var stoneSprite;
 var coalSprite;
 
 function preload() {
-  
+  font = loadFont('Resources/Pixellari.ttf');
 }
 
 function setup() {
     createCanvas(1280, 720);
     
+    textFont(font);
     wallSprite = loadImage('Resources/wall.png');
     ladderLeftSprite = loadImage('Resources/ladderLeft.png');
     ladderRightSprite = loadImage('Resources/ladderRight.png');
@@ -41,9 +45,18 @@ function setup() {
     coalSprite = loadImage('Resources/coal.png');
     
     tileDetails = [
-        {name:'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0, sprite: dirtSprite},
-        {name:'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, sprite: stoneSprite},
-        {name:'coal',    id: 2, breakTime: 3000, tColor: '#2C2925', price: 1.0, count: 0, sprite: coalSprite}
+        {name: 'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0, sprite: dirtSprite},
+        {name: 'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, sprite: stoneSprite},
+        {name: 'coal',    id: 2, breakTime: 3000, tColor: '#2C2925', price: 1.0, count: 0, sprite: coalSprite}
+    ];
+    
+    pickaxeDetails = [
+        {name: 'default', id: 0, miningSpeed: 1, price: 0},
+        {name: 'stone', id: 1, miningSpeed: 1.25, price: 50}
+    ];
+    
+    upgradeDetails = [
+        {name: 'pickaxe', id: 0, progression: pickaxeDetails, current: 0}  
     ];
     
     this.inventory.push(new SellBlock(80, 120, 0));
