@@ -6,6 +6,9 @@ function BMine() {
      this.sellBlocks = [];
      this.ladders = [];
      this.name = "B";
+     this.resetLength = 60000 * 5;
+     var d = new Date();
+     this.lastReset = d.getTime();
      
      this.leftRoom;
      this.rightRoom;
@@ -36,7 +39,21 @@ function BMine() {
          fill(34, 34, 34);
          textAlign(CENTER, BASELINE);
          textSize(200);
-         text("B", 40, 50, 1200, 300);
+         text("B", 62, 50, 1200, 300);
+         
+         var d = new Date();
+         var timeLeft = (this.lastReset + this.resetLength) - d.getTime();
+         var hours = parseInt(timeLeft / 3600000);
+         var formattedHours = ("0" + hours).slice(-2);
+         timeLeft -= hours * 3600000;
+         var mins = parseInt(timeLeft / 60000);
+         var formattedMins = ("0" + mins).slice(-2);
+         timeLeft -= mins * 60000;
+         var secs = parseInt(timeLeft / 1000);
+         var formattedSecs = ("0" + secs).slice(-2);
+         textSize(20);
+         fill(255);
+         text(formattedHours + ":" + formattedMins + ":" + formattedSecs, 1180, 30);
          
          for (var i = 0; i < this.sellBlocks.length; i++) {
              this.sellBlocks[i].display();
@@ -60,6 +77,33 @@ function BMine() {
              this.tiles[i].checkMouse();
              this.tiles[i].update();
          } 
+         
+         this.checkReset();
+     }
+     
+     this.checkReset = function() {
+         var d = new Date();
+         if ((this.lastReset + this.resetLength) - d.getTime() < 0) {
+             if (currentMine.name == this.name) prisoner.setY(280 - prisoner.getHeight());
+             this.resetTiles();   
+             saveState();
+         }
+     }
+     
+     this.resetTiles = function() {
+         this.tiles = [];
+         for (var y = 0; y < this.tileHeight; y++) {
+             for (var x = 0; x < this.tileWidth; x++) {
+                 var id = random(100);
+                 if (id < 40) { id = 0; }
+                 else if (id < 75) { id = 1; }
+                 else { id = 2; }
+                 this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, (y * this.tileWidth) + x, id));
+             }
+         }
+         
+         var d = new Date();
+         this.lastReset = d.getTime();
      }
      
      this.setLeftRoom = function(leftRoom) {

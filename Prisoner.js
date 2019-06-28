@@ -2,7 +2,7 @@ function Prisoner() {
     var pWidth = TILESIZE * .7;
     var pHeight = (2*TILESIZE) * (5/6);
     
-    var loc = createVector(width/2 - TILESIZE/2, 100);
+    var loc = createVector(width/2 - TILESIZE/2, 280 - pHeight);
     var vel = createVector(0, 0);
     var horizontalAcceleration = .5;
     var jumpAcceleration = 4.5;
@@ -105,7 +105,6 @@ function Prisoner() {
             }
             // Floor
             if (loc.y + vel.y + pHeight > wall.getY() && loc.y + vel.y < wall.getY() && (loc.x > wall.getX() - pWidth && loc.x < wall.getX() + wall.getWidth())) {
-                console.log(loc.y);
                 loc.y = wall.getY() - pHeight;
                 vel.y = 0;
                 if (!horizontalKeyPressed) vel.x = vel.x/1.3;
@@ -210,5 +209,9 @@ function Prisoner() {
     
     this.getHeight = function() {
         return pHeight;
+    }
+    
+    this.resetLoc = function() {
+        loc = createVector(width/2 - TILESIZE/2, 280 - pHeight); 
     }
 }

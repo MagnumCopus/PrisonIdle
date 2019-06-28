@@ -22,7 +22,7 @@ function Shop() {
          fill(34, 34, 34);
          textAlign(CENTER, BASELINE);
          textSize(200);
-         text("Shop", 40, 60, 1200, 300);
+         text("Shop", 62, 60, 1200, 300);
          
          fill(255);
          textSize(20);

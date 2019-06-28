@@ -10,8 +10,8 @@ function Tile(xLoc, yLoc, index, id) {
   var breakable = false;
   var inReach = false;
   var breaking = false;
-  var intact = true;
-  this.test = false;
+  this.intact = true;
+  this.id = id;
   
   var breakStart = 0;
   var breakState = 0;
@@ -20,7 +20,7 @@ function Tile(xLoc, yLoc, index, id) {
   var breakTime = details.breakTime;
   
   this.display = function() {
-    if (intact) { 
+    if (this.intact) { 
       noStroke();
       var size = ((breakTime / miningSpeed) - breakState) / (breakTime / miningSpeed) * TILESIZE;
       var offset = map(size, 0, TILESIZE, TILESIZE/2, 0);
@@ -36,11 +36,11 @@ function Tile(xLoc, yLoc, index, id) {
   }
   
   this.update = function() {
-    if (intact && breaking) {
+    if (this.intact && breaking) {
       breakState = millis() - breakStart;
       //tColor = map(breakState, breakTime, 0, 0, 255);
       if (breakState > (breakTime / miningSpeed)) {
-        intact = false;
+        this.intact = false;
         tileDetails[id].count++;
         saveState();
       }
@@ -77,14 +77,14 @@ function Tile(xLoc, yLoc, index, id) {
   }
   
   this.destroy = function() {
-    if (!breaking && intact && breakable && inReach) {
+    if (!breaking && this.intact && breakable && inReach) {
       breaking = true;
       breakStart = millis();
     }
   }
   
   this.restore = function() {
-    if (breaking && intact) {
+    if (breaking && this.intact) {
       breaking = false;
       breakState = 0;
       breakStart = 0;
@@ -92,7 +92,7 @@ function Tile(xLoc, yLoc, index, id) {
   }
   
   this.getIntact = function() {
-    return intact; 
+    return this.intact; 
   }
   
   this.getX = function() {
@@ -101,5 +101,12 @@ function Tile(xLoc, yLoc, index, id) {
     
   this.getY = function() {
       return loc.y;   
+  }
+  
+  this.setID = function(id) {
+      this.id = id;
+      details = tileDetails[id];
+      tColor = color(details.tColor);
+      breakTime = details.breakTime;
   }
 }
