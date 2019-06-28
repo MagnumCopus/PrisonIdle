@@ -25,7 +25,7 @@ function setup() {
     AMine = new AMine();
     BMine = new BMine();
     
-    console.log(shop);
+    //console.log(shop);
     shop.setRightRoom(AMine);
     AMine.setLeftRoom(shop);
     AMine.setRightRoom(BMine);
@@ -66,6 +66,7 @@ function draw() {
 }
 
 function saveState() {
+    console.log("Saved.");
     localStorage.setItem('money', JSON.stringify(money));
     localStorage.setItem('currentMine', JSON.stringify(currentMine.name));
     localStorage.setItem('ATiles', JSON.stringify(AMine.tiles));
@@ -113,7 +114,10 @@ function loadState() {
         }
     }
     if (JSON.parse(localStorage.getItem('BReset')) != null) BMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('BReset')));
-    if (JSON.parse(localStorage.getItem('sellQuantity')) != null) sellQuantity = parseInt(JSON.parse(localStorage.getItem('sellQuantity')));
+    if (JSON.parse(localStorage.getItem('sellQuantity')) != null) {
+        if (JSON.parse(localStorage.getItem('sellQuantity')) == "All") sellQuantity = "All";
+        else sellQuantity = parseInt(JSON.parse(localStorage.getItem('sellQuantity')));
+    }
     if (JSON.parse(localStorage.getItem('dirtCount')) != null) tileDetails[0].count = parseInt(JSON.parse(localStorage.getItem('dirtCount')));
     if (JSON.parse(localStorage.getItem('stoneCount')) != null) tileDetails[1].count = parseInt(JSON.parse(localStorage.getItem('stoneCount')));
     if (JSON.parse(localStorage.getItem('coalCount')) != null) tileDetails[2].count = parseInt(JSON.parse(localStorage.getItem('coalCount')));

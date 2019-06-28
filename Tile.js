@@ -42,7 +42,7 @@ function Tile(xLoc, yLoc, index, id) {
       if (breakState > (breakTime / miningSpeed)) {
         this.intact = false;
         tileDetails[id].count++;
-        saveState();
+        //saveState();
       }
     }
     

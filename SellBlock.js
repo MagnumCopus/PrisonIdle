@@ -39,6 +39,6 @@ function SellBlock(xLoc, yLoc, id) {
             else if (sellQuantity == 25) sellQuantity = "All";
             else if (sellQuantity == "All") sellQuantity = 1;
         }
-        saveState();
+        //saveState();
     }
 }
