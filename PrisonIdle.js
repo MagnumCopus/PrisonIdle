@@ -60,22 +60,26 @@ function setup() {
     ironPickaxeSprite = loadImage('Resources/ironPickaxe.png');
     
     tileDetails = [
-        {name: 'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0, info: "Name: Dirt    Sell For: $0.10    Locations: A, B    Description: Diggy diggy hole", sprite: dirtSprite},
-        {name: 'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, info: "Name: Stone    Sell For: $0.30    Locations: A, B, C, D    Description: ", sprite: stoneSprite},
-        {name: 'coal',    id: 2, breakTime: 2000, tColor: '#2C2925', price: 1.0, count: 0, info: "Name: Coal    Sell For: $1.00    Locations: A, B, C, D, E    Description: Almost like diamonds", sprite: coalSprite},
-        {name: 'iron',    id: 3, breakTime: 5000, tColor: '#F0D4B5', price: 3.0, count: 0, info: "Name: Iron    Sell For: $3.00    Locations: C, D, E    Description: ", sprite: ironSprite}
+        {name: 'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0, info: "Name: Dirt    Sell For: $0.10    Locations: A, B    Description: Diggy diggy hole", minimumMine: 0, sprite: dirtSprite},
+        {name: 'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, info: "Name: Stone    Sell For: $0.30    Locations: A, B, C, D    Description: ", minimumMine: 0, sprite: stoneSprite},
+        {name: 'coal',    id: 2, breakTime: 2000, tColor: '#2C2925', price: 1.0, count: 0, info: "Name: Coal    Sell For: $1.00    Locations: A, B, C, D, E    Description: Almost like diamonds", minimumMine: 0, sprite: coalSprite},
+        {name: 'iron',    id: 3, breakTime: 5000, tColor: '#F0D4B5', price: 3.0, count: 0, info: "Name: Iron    Sell For: $3.00    Locations: C, D, E    Description: ", minimumMine: 2, sprite: ironSprite}
     ];
     
     recipes = [
         {name: 'stonePickaxe', id: 0, parts: [
             {id: 1, count: 50}
+        ]},
+        {name: 'ironPickaxe', id: 1, parts: [
+            {id: 2, count: 100},
+            {id: 3, count: 50}
         ]}
     ];
     
     pickaxeDetails = [
-        {name: 'default', id: 0, miningSpeed: 1, cost: 0, info: 'Name: Wooden Pickaxe    Cost: $0.00    Speed: 1.0x    Description: Gotta start somewhere', sprite: woodenPickaxeSprite},
-        {name: 'stone', id: 1, miningSpeed: 1.5, cost: 50, info: 'Name: Stone Pickaxe    Cost: $50.00    Speed: 1.5x    Description: Stone those stoned stones', sprite: stonePickaxeSprite},
-        {name: 'iron', id: 2, miningSpeed: 2, cost: 150, info: 'Name: Iron Pickaxe    Cost: $150.00    Speed: 2x    Description: ', sprite: ironPickaxeSprite}
+        {name: 'default', id: 0, miningSpeed: 1, cost: 0, info: 'Name: Wooden Pickaxe    Cost: $0.00    Speed: 1.0x', sprite: woodenPickaxeSprite},
+        {name: 'stone', id: 1, miningSpeed: 1.5, recipe: recipes[0], info: 'Name: Stone Pickaxe    Cost: 50 Stone    Speed: 1.5x', sprite: stonePickaxeSprite},
+        {name: 'iron', id: 2, miningSpeed: 2, recipe: recipes[1], info: 'Name: Iron Pickaxe    Cost: 50 Iron and 100 Coal    Speed: 2x', sprite: ironPickaxeSprite}
     ];
     
     doors = [
@@ -180,6 +184,7 @@ function saveState() {
     localStorage.setItem('dirtCount', JSON.stringify(tileDetails[0].count));
     localStorage.setItem('stoneCount', JSON.stringify(tileDetails[1].count));
     localStorage.setItem('coalCount', JSON.stringify(tileDetails[2].count));
+    localStorage.setItem('ironCount', JSON.stringify(tileDetails[3].count));
 }
 
 function loadState() {
@@ -255,6 +260,7 @@ function loadState() {
     if (JSON.parse(localStorage.getItem('dirtCount')) != null) tileDetails[0].count = parseInt(JSON.parse(localStorage.getItem('dirtCount')));
     if (JSON.parse(localStorage.getItem('stoneCount')) != null) tileDetails[1].count = parseInt(JSON.parse(localStorage.getItem('stoneCount')));
     if (JSON.parse(localStorage.getItem('coalCount')) != null) tileDetails[2].count = parseInt(JSON.parse(localStorage.getItem('coalCount')));
+    if (JSON.parse(localStorage.getItem('ironCount')) != null) tileDetails[3].count = parseInt(JSON.parse(localStorage.getItem('ironCount')));
     //console.log(currentMine.tiles);
 }
 

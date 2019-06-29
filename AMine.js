@@ -7,6 +7,7 @@ function AMine() {
      this.doors = [];
      this.ladders = [];
      this.name = "A";
+     this.index = 0;
      this.resetLength = 60000 * 3;
      var d = new Date();
      this.lastReset = d.getTime();
@@ -27,6 +28,10 @@ function AMine() {
      this.ladders.push(new Ladder(1110, 280, 12, 400, "right"));
      
      this.doors.push(doors[0]);
+     
+     this.sellBlocks.push(new SellBlock(1000, 40, 0));
+     this.sellBlocks.push(new SellBlock(1080, 40, 1));
+     this.sellBlocks.push(new SellBlock(1160, 40, 2));
      
      for (var y = 0; y < this.tileHeight; y++) {
          for (var x = 0; x < this.tileWidth; x++) {
@@ -100,6 +105,7 @@ function AMine() {
          if ((this.lastReset + this.resetLength) - d.getTime() < 0) {
              if (currentMine.name == this.name) prisoner.setY(280 - prisoner.getHeight());
              this.resetTiles();   
+             currentlyBreaking = -1;
              saveState();
          }
      }

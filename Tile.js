@@ -56,7 +56,8 @@ function Tile(xLoc, yLoc, index, id) {
       //tColor = map(breakState, breakTime, 0, 0, 255);
       if (breakState > (breakTime / miningSpeed)) {
         this.intact = false;
-        tileDetails[id].count++;
+        console.log(this.id);
+        tileDetails[this.id].count++;
         currentlyBreaking = -1;
         //saveState();
       }

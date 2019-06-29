@@ -240,7 +240,7 @@ function Prisoner() {
         // SellBlock Collisions
         for (var i = 0; i < currentMine.sellBlocks.length; i++) {
             var sellBlock = currentMine.sellBlocks[i];
-            if (dist(loc.x, loc.y, sellBlock.getX(), sellBlock.getY()) < 100) {
+            if (sellBlock.minimumMineMet() && dist(loc.x, loc.y, sellBlock.getX(), sellBlock.getY()) < 100) {
                 // Right Wall
                 if (loc.x + vel.x < sellBlock.getX() + TILESIZE && loc.x + vel.x > sellBlock.getX() && loc.y + pHeight > sellBlock.getY() && loc.y < sellBlock.getY() + TILESIZE) {
                     loc.x = sellBlock.getX() + TILESIZE;

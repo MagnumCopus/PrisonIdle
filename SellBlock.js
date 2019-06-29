@@ -5,16 +5,18 @@ function SellBlock(xLoc, yLoc, id) {
     this.displayingInfo = false;
     
     this.display = function() {
-        noStroke();
-        if (id >= 0) fill(color(tileDetails[id].tColor));
-        else fill(80);
-        if (id >= 0 && tileDetails[id].sprite != null) image(tileDetails[id].sprite, loc.x, loc.y, TILESIZE, TILESIZE);
-        else rect(loc.x, loc.y, TILESIZE, TILESIZE);
-        fill(255);
-        textSize(20);
-        textAlign(CENTER, CENTER);
-        if (id >= 0) text(tileDetails[id].count, loc.x, loc.y, TILESIZE*1.12, TILESIZE);
-        else text(sellQuantity, loc.x, loc.y, TILESIZE*1.12, TILESIZE);
+        if (this.minimumMineMet()) {
+            noStroke();
+            if (id >= 0) fill(color(tileDetails[id].tColor));
+            else fill(80);
+            if (id >= 0 && tileDetails[id].sprite != null) image(tileDetails[id].sprite, loc.x, loc.y, TILESIZE, TILESIZE);
+            else rect(loc.x, loc.y, TILESIZE, TILESIZE);
+            fill(255);
+            textSize(20);
+            textAlign(CENTER, CENTER);
+            if (id >= 0) text(tileDetails[id].count, loc.x, loc.y, TILESIZE*1.12, TILESIZE);
+            else text(sellQuantity, loc.x, loc.y, TILESIZE*1.12, TILESIZE);
+        }
     }
     
     this.getX = function() {
@@ -59,5 +61,10 @@ function SellBlock(xLoc, yLoc, id) {
             else if (sellQuantity == "All") sellQuantity = 1;
         }
         //saveState();
+    }
+    
+    this.minimumMineMet = function() {
+        if (id >= 0) return upgradeDetails[1].current >= tileDetails[id].minimumMine;
+        return true;
     }
 }

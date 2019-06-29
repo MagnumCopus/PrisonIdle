@@ -49,10 +49,25 @@ function UpgradeBlock(xLoc, yLoc, id) {
     this.upgrade = function() {
         // Pickaxe upgrade
         if (id == 0) {
-            if (money >= upgradeDetails[id].progression[upgradeDetails[id].current+1].cost) {
+            if (upgradeDetails[id].progression[upgradeDetails[id].current+1].cost != null && money >= upgradeDetails[id].progression[upgradeDetails[id].current+1].cost) {
                 upgradeDetails[id].current += 1;
                 miningSpeed = upgradeDetails[id].progression[upgradeDetails[id].current].miningSpeed;
                 money -= upgradeDetails[id].progression[upgradeDetails[id].current].cost;
+            } else if (upgradeDetails[id].progression[upgradeDetails[id].current+1].recipe != null) {
+                var parts = upgradeDetails[id].progression[upgradeDetails[id].current+1].recipe.parts;
+                var canAfford = true;
+                for (var i = 0; i < parts.length; i++) {
+                    var partId = parts[i].id;
+                    if (tileDetails[partId].count < parts[i].count) canAfford = false;
+                }
+                if (canAfford) {
+                    for (var i = 0; i < parts.length; i++) {
+                        var partId = parts[i].id;
+                        tileDetails[partId].count -= parts[i].count;
+                    }
+                    upgradeDetails[id].current += 1;
+                    miningSpeed = upgradeDetails[id].progression[upgradeDetails[id].current].miningSpeed;
+                }
             }
         } else if (id == 1) {
             console.log("buy door");
@@ -60,8 +75,9 @@ function UpgradeBlock(xLoc, yLoc, id) {
                 upgradeDetails[id].current += 1;
                 upgradeDetails[id].progression[upgradeDetails[id].current].door.openDoor();
                 money -= upgradeDetails[id].progression[upgradeDetails[id].current].cost;
-            }  
+            }
         }
+        this.stopDisplaying();
         //saveState();
     }
 }
