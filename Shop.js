@@ -2,8 +2,10 @@ function Shop() {
      this.walls = [];
      this.tiles = [];
      this.sellBlocks = [];
+     this.upgradeBlocks = [];
      this.ladders = [];
      this.name = "Shop";
+     this.infoText = "";
      
      this.leftRoom;
      this.rightRoom;
@@ -13,6 +15,8 @@ function Shop() {
      this.walls.push(new Wall(0, 680, 1200, 40));
      this.walls.push(new Wall(1160, 280, 160, 40));
      this.walls.push(new Wall(40, 280, 1040, 40));
+     this.walls.push(new Wall(40, 360, 1040, 40));
+     this.walls.push(new Wall(1040, 320, 40, 40));
      this.walls.push(new Wall(1240, 0, 40, 200));
      this.walls.push(new Wall(1160, 280, 40, 400));
      //this.walls.push(new Wall(40, 0, 1200, 40));
@@ -22,6 +26,9 @@ function Shop() {
      this.sellBlocks.push(new SellBlock(240, 160, 2));
      this.sellBlocks.push(new SellBlock(960, 160, -1));
      
+     this.upgradeBlocks.push(new UpgradeBlock(80, 560, 0));
+     this.upgradeBlocks.push(new UpgradeBlock(960, 560, 1));
+     
      this.ladders.push(new Ladder(1150, 280, 12, 400, "right"));
      
      this.display = function() {
@@ -29,6 +36,12 @@ function Shop() {
          rect(0, 0, 1280, 720);
          fill(33, 30, 22);
          rect(1200, 280, 80, 440);
+         
+         fill(255);
+         rect(40, 320, 1040, 40);
+         fill(34);
+         textSize(20);
+         text(this.infoText, 50, 346);
          
          fill(34, 34, 34);
          textAlign(CENTER, BASELINE);
@@ -49,6 +62,10 @@ function Shop() {
          
          for (var i = 0; i < this.ladders.length; i++) {
              this.ladders[i].display();
+         }
+         
+         for (var i = 0; i < this.upgradeBlocks.length; i++) {
+             this.upgradeBlocks[i].display();
          }
      }
      

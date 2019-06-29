@@ -60,6 +60,7 @@ function Tile(xLoc, yLoc, index, id) {
       if (breakState > (breakTime / miningSpeed)) {
         this.intact = false;
         tileDetails[id].count++;
+        console.log(miningSpeed);
         //saveState();
       }
     }

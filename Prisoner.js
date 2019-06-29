@@ -9,6 +9,7 @@ function Prisoner() {
     var maxHorizontalSpeed = 4;
     var inAir = true;
     var jumpReleased = true;
+    var direction = "right";
   
     this.display = function() {
         noStroke();
@@ -16,6 +17,19 @@ function Prisoner() {
         rect(loc.x, loc.y, pWidth, pHeight);
         fill('#FFE0C4');
         rect(loc.x, loc.y, pWidth, pHeight/3);
+        var pickaxe = upgradeDetails[0].progression[upgradeDetails[0].current].sprite;
+        if (pickaxe != null) {
+            push();
+            if (direction == "right") {
+                translate(loc.x + 30, loc.y + 5);
+                rotate(PI/4);
+            } else {
+                translate(loc.x - 30, loc.y + 34);
+                rotate(-PI/4);
+            }
+            image(pickaxe, 0, 0, TILESIZE, TILESIZE);
+            pop();
+        }
     }
     
     this.update = function() {
@@ -26,11 +40,13 @@ function Prisoner() {
             if (!inAir) { vel.x -= horizontalAcceleration; }
             else { vel.x -= horizontalAcceleration/2; }
             horizontalKeyPressed = true;
+            direction = "left";
         }
         if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
             if (!inAir) vel.x += horizontalAcceleration;
             else vel.x += horizontalAcceleration/2;
             horizontalKeyPressed = true;
+            direction = "right";
         }
         if (keyIsDown(32) || keyIsDown(UP_ARROW) || keyIsDown(87)) {
             if (jumpReleased && !inAir) {
@@ -82,7 +98,7 @@ function Prisoner() {
             }
         }
         
-        // Barrier Collisions
+        // Wall Collisions
         for (var i = 0; i < currentMine.walls.length; i++) {
             var wall = currentMine.walls[i];
             // Right Wall
@@ -110,6 +126,39 @@ function Prisoner() {
                 if (!horizontalKeyPressed) vel.x = vel.x/1.3;
                 onFloor = true;
                 //console.log("4");
+            }
+        }
+        
+        // Door Collisions
+        for (var i = 0; currentMine.doors != null && i < currentMine.doors.length; i++) {
+            var door = currentMine.doors[i];
+            if (door.getClosed()) {
+                // Right Wall
+                if (loc.x + vel.x < door.getX() + door.getWidth() && loc.x + vel.x > door.getX() && loc.y + pHeight > door.getY() && loc.y < door.getY() + door.getHeight()) {
+                    loc.x = door.getX() + door.getWidth();
+                    vel.x = 0;
+                    //console.log("1");
+                }
+                // Ceiling
+                if (loc.y + vel.y < door.getY() + door.getHeight() && loc.y + vel.y > door.getY() && (loc.x > door.getX() - pWidth && loc.x < door.getX() + door.getWidth())) {
+                    loc.y = door.getY() + door.getHeight();
+                    vel.y = 0;
+                    //console.log("2");
+                }
+                // Left Wall
+                if (loc.x + vel.x + pWidth > door.getX() && loc.x + vel.x < door.getX() && loc.y + pHeight > door.getY() && loc.y < door.getY() + door.getHeight()) {
+                    loc.x = door.getX() - pWidth;
+                    vel.x = 0;
+                    //console.log("3");
+                }
+                // Floor
+                if (loc.y + vel.y + pHeight > door.getY() && loc.y + vel.y < door.getY() && (loc.x > door.getX() - pWidth && loc.x < door.getX() +door.getWidth())) {
+                    loc.y = door.getY() - pHeight;
+                    vel.y = 0;
+                    if (!horizontalKeyPressed) vel.x = vel.x/1.3;
+                    onFloor = true;
+                    //console.log("4");
+                }
             }
         }
         
@@ -176,6 +225,52 @@ function Prisoner() {
                     if (!horizontalKeyPressed) vel.x = vel.x/1.3;
                     onFloor = true;
                     //console.log("4");
+                }
+                // Info
+                if (loc.y + pHeight <= sellBlock.getY() + 120 && loc.y >= sellBlock.getY() && (loc.x > sellBlock.getX() - pWidth && loc.x < sellBlock.getX() + TILESIZE)) {
+                    sellBlock.displayInfo();
+                } else {
+                    sellBlock.stopDisplaying();   
+                }
+            }
+        }
+        
+        // Upgrade Block Collisions
+        for (var i = 0; currentMine.upgradeBlocks != null && i < currentMine.upgradeBlocks.length; i++) {
+            var upgradeBlock = currentMine.upgradeBlocks[i];
+            if (dist(loc.x, loc.y, upgradeBlock.getX(), upgradeBlock.getY()) < 100) {
+                // Right Wall
+                if (loc.x + vel.x < upgradeBlock.getX() + TILESIZE && loc.x + vel.x > upgradeBlock.getX() && loc.y + pHeight > upgradeBlock.getY() && loc.y < upgradeBlock.getY() + TILESIZE) {
+                    loc.x = upgradeBlock.getX() + TILESIZE;
+                    vel.x = 0;
+                    //console.log("1");
+                }
+                // Ceiling
+                if (loc.y + vel.y < upgradeBlock.getY() + TILESIZE && loc.y + vel.y > upgradeBlock.getY() && (loc.x > upgradeBlock.getX() - pWidth && loc.x < upgradeBlock.getX() + TILESIZE)) {
+                    currentMine.upgradeBlocks[i].upgrade();
+                    loc.y = upgradeBlock.getY() + TILESIZE;
+                    vel.y = 0;
+                    //console.log("2");
+                }
+                // Left Wall
+                if (loc.x + vel.x + pWidth > upgradeBlock.getX() && loc.x + vel.x < upgradeBlock.getX() && loc.y + pHeight > upgradeBlock.getY() && loc.y < upgradeBlock.getY() + TILESIZE) {
+                    loc.x = upgradeBlock.getX() - pWidth;
+                    vel.x = 0;
+                    //console.log("3");
+                }
+                // Floor
+                if (loc.y + vel.y + pHeight > upgradeBlock.getY() && loc.y + vel.y < upgradeBlock.getY() && (loc.x > upgradeBlock.getX() - pWidth && loc.x < upgradeBlock.getX() + TILESIZE)) {
+                    loc.y = upgradeBlock.getY() - pHeight;
+                    vel.y = 0;
+                    if (!horizontalKeyPressed) vel.x = vel.x/1.3;
+                    onFloor = true;
+                    //console.log("4");
+                }
+                // Info
+                if (loc.y + pHeight <= upgradeBlock.getY() + 120 && loc.y >= upgradeBlock.getY() && (loc.x > upgradeBlock.getX() - pWidth && loc.x < upgradeBlock.getX() + TILESIZE)) {
+                    upgradeBlock.displayInfo();
+                } else {
+                    upgradeBlock.stopDisplaying();   
                 }
             }
         }

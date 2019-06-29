@@ -2,6 +2,7 @@ var sellQuantity = 1;
 
 function SellBlock(xLoc, yLoc, id) {
     var loc = createVector(xLoc, yLoc);
+    this.displayingInfo = false;
     
     this.display = function() {
         noStroke();
@@ -22,6 +23,23 @@ function SellBlock(xLoc, yLoc, id) {
     
     this.getY = function() {
         return loc.y;   
+    }
+    
+    this.displayInfo = function() {
+        if (id >= 0) {
+            shop.infoText = tileDetails[id].info;
+            this.displayingInfo = true;
+        } else {
+            shop.infoText = "Change the amount of minerals bulk sold to the store";
+            this.displayingInfo = true;
+        }
+    }
+    
+    this.stopDisplaying = function() {
+        if (this.displayingInfo) {
+            shop.infoText = "";
+            this.displayingInfo = false;
+        }
     }
     
     this.sell = function() {

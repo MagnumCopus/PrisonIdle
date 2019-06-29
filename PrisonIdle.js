@@ -13,8 +13,10 @@ var BMine;
 
 var tileDetails;
 var pickaxeDetails;
+var doorDetails;
 var upgradeDetails;
 var inventory = [];
+var doors = [];
 
 var TILESIZE = 40;
 var GRAVITY = .2;
@@ -27,6 +29,9 @@ var breakAnimation
 var dirtSprite;
 var stoneSprite;
 var coalSprite;
+
+var woodenPickaxeSprite;
+var stonePickaxeSprite;
 
 function preload() {
   font = loadFont('Resources/Pixellari.ttf');
@@ -44,19 +49,33 @@ function setup() {
     stoneSprite = loadImage('Resources/stone.png');
     coalSprite = loadImage('Resources/coal.png');
     
+    woodenPickaxeSprite = loadImage('Resources/woodenPickaxe.png');
+    stonePickaxeSprite = loadImage('Resources/stonePickaxe.png');
+    
     tileDetails = [
-        {name: 'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0, sprite: dirtSprite},
-        {name: 'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, sprite: stoneSprite},
-        {name: 'coal',    id: 2, breakTime: 3000, tColor: '#2C2925', price: 1.0, count: 0, sprite: coalSprite}
+        {name: 'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0, info: "Name: Dirt    Sell For: $0.10    Locations: A, B    Description: Diggy diggy hole", sprite: dirtSprite},
+        {name: 'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, info: "Name: Stone    Sell For: $0.30    Locations: A, B, C, D    Description: ", sprite: stoneSprite},
+        {name: 'coal',    id: 2, breakTime: 3000, tColor: '#2C2925', price: 1.0, count: 0, info: "Name: Coal    Sell For: $1.00    Locations: A, B, C, D, E    Description: Almost like diamonds", sprite: coalSprite}
     ];
     
     pickaxeDetails = [
-        {name: 'default', id: 0, miningSpeed: 1, price: 0},
-        {name: 'stone', id: 1, miningSpeed: 1.25, price: 50}
+        {name: 'default', id: 0, miningSpeed: 1, cost: 0, info: 'Name: Wooden Pickaxe    Cost: $0.00    Speed: 1.0x    Description: Gotta start somewhere', sprite: woodenPickaxeSprite},
+        {name: 'stone', id: 1, miningSpeed: 1.25, cost: 50, info: 'Name: Stone Pickaxe    Cost: $50.00    Speed: 1.25x    Description: Stone those stoned stones', sprite: stonePickaxeSprite}
+    ];
+    
+    doors = [
+        new Door(1240, 200, 12, 80)
+    ];
+    
+    doorDetails = [
+        {name: 'A', id: 0, cost: 0, info: "Name: A-Mine Entrance    Cost: $0.00    Description: You shouldn't be reading this."},
+        {name: 'B', id: 1, cost: 100, info: 'Name: B-Mine Entrance    Cost: $100.00    Description: To finity and beyond...', door: doors[0]}
+        //{name: 'stone', id: 1, miningSpeed: 1.25, cost: 50, info: 'Cost: $50.00    Speed: 1.25x    Description: Stone those stoned stones', sprite: stonePickaxeSprite}
     ];
     
     upgradeDetails = [
-        {name: 'pickaxe', id: 0, progression: pickaxeDetails, current: 0}  
+        {name: 'pickaxe', id: 0, progression: pickaxeDetails, current: 0},
+        {name: 'doors', id: 1, progression: doorDetails, current: 0}
     ];
     
     this.inventory.push(new SellBlock(80, 120, 0));
@@ -119,6 +138,8 @@ function draw() {
 function saveState() {
     console.log("Saved.");
     localStorage.setItem('money', JSON.stringify(money));
+    localStorage.setItem('pickaxe', JSON.stringify(upgradeDetails[0].current));
+    localStorage.setItem('doors', JSON.stringify(upgradeDetails[1].current));
     localStorage.setItem('currentMine', JSON.stringify(currentMine.name));
     localStorage.setItem('ATiles', JSON.stringify(AMine.tiles));
     //console.log(AMine.lastReset);
@@ -134,6 +155,16 @@ function saveState() {
 function loadState() {
     //localStorage.removeItem('AReset');
     if (JSON.parse(localStorage.getItem('money')) != null) money = parseFloat(JSON.parse(localStorage.getItem('money')));
+    if (JSON.parse(localStorage.getItem('doors')) != null) {
+        upgradeDetails[1].current = parseInt(JSON.parse(localStorage.getItem('doors')));
+        for (var i = 1; i < upgradeDetails[1].current+1; i++) {
+             upgradeDetails[1].progression[i].door.openDoor();
+        }
+    }
+    if (JSON.parse(localStorage.getItem('pickaxe')) != null) {
+        upgradeDetails[0].current = parseInt(JSON.parse(localStorage.getItem('pickaxe')));
+        miningSpeed = upgradeDetails[0].progression[upgradeDetails[0].current].miningSpeed;   
+    }
     if (JSON.parse(localStorage.getItem('currentMine')) != null) var mineName = JSON.parse(localStorage.getItem('currentMine'));
     switch(mineName) {
         case "Shop":

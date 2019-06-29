@@ -4,6 +4,7 @@ function AMine() {
      this.tileHeight = 10;
      this.tileWidth = 22;
      this.sellBlocks = [];
+     this.doors = [];
      this.ladders = [];
      this.name = "A";
      this.resetLength = 60000 * 3;
@@ -24,6 +25,8 @@ function AMine() {
      
      this.ladders.push(new Ladder(160, 280, 12, 400, "left"));
      this.ladders.push(new Ladder(1110, 280, 12, 400, "right"));
+     
+     this.doors.push(doors[0]);
      
      for (var y = 0; y < this.tileHeight; y++) {
          for (var x = 0; x < this.tileWidth; x++) {
@@ -75,6 +78,10 @@ function AMine() {
          
          for (var i = 0; i < this.ladders.length; i++) {
              this.ladders[i].display();
+         }
+         
+         for (var i = 0; i < this.doors.length; i++) {
+             this.doors[i].display();
          }
      }
      
