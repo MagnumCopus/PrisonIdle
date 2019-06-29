@@ -19,6 +19,7 @@ var doorDetails;
 var upgradeDetails;
 var inventory = [];
 var doors = [];
+var recipes = [];
 
 var TILESIZE = 40;
 var GRAVITY = .2;
@@ -63,6 +64,12 @@ function setup() {
         {name: 'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, info: "Name: Stone    Sell For: $0.30    Locations: A, B, C, D    Description: ", sprite: stoneSprite},
         {name: 'coal',    id: 2, breakTime: 2000, tColor: '#2C2925', price: 1.0, count: 0, info: "Name: Coal    Sell For: $1.00    Locations: A, B, C, D, E    Description: Almost like diamonds", sprite: coalSprite},
         {name: 'iron',    id: 3, breakTime: 5000, tColor: '#F0D4B5', price: 3.0, count: 0, info: "Name: Iron    Sell For: $3.00    Locations: C, D, E    Description: ", sprite: ironSprite}
+    ];
+    
+    recipes = [
+        {name: 'stonePickaxe', id: 0, parts: [
+            {id: 1, count: 50}
+        ]}
     ];
     
     pickaxeDetails = [
@@ -136,6 +143,8 @@ function draw() {
     
     AMine.checkReset();
     BMine.checkReset();
+    CMine.checkReset();
+    DMine.checkReset();
     
     prisoner.display();
     prisoner.update();

@@ -11,6 +11,10 @@ function Prisoner() {
     var jumpReleased = true;
     var direction = "right";
   
+    var breakingLeft = false;
+    var breakingRight = false;
+    var breakingDown = false;
+  
     this.display = function() {
         noStroke();
         fill(250, 164, 78); // orange
@@ -168,10 +172,24 @@ function Prisoner() {
             if (tile.getIntact() && dist(loc.x, loc.y, tile.getX(), tile.getY()) < 100) {
                 // Right Wall
                 if (loc.x + vel.x < tile.getX() + TILESIZE && loc.x + vel.x > tile.getX() && loc.y + pHeight > tile.getY() && loc.y < tile.getY() + TILESIZE) {
+                    console.log(onFloor);
+                    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
+                        tile.destroy();
+                        breakingLeft = true;
+                    }
                     loc.x = tile.getX() + TILESIZE;
                     vel.x = 0;
                     //console.log("1");
                 }
+                else if (breakingLeft && currentlyBreaking == tile.getIndex()) {
+                    tile.restore();
+                    breakingLeft = false;  
+                }
+                if (breakingLeft && !(keyIsDown(LEFT_ARROW) || keyIsDown(65)) && currentlyBreaking == tile.getIndex()) {
+                    tile.restore();
+                    breakingLeft = false;   
+                }
+                //console.log(currentlyBreaking);
                 // Ceiling
                 if (loc.y + vel.y < tile.getY() + TILESIZE && loc.y + vel.y > tile.getY() && (loc.x > tile.getX() - pWidth && loc.x < tile.getX() + TILESIZE)) {
                     loc.y = tile.getY() + TILESIZE;
@@ -180,17 +198,41 @@ function Prisoner() {
                 }
                 // Left Wall
                 if (loc.x + vel.x + pWidth > tile.getX() && loc.x + vel.x < tile.getX() && loc.y + pHeight > tile.getY() && loc.y < tile.getY() + TILESIZE) {
+                    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
+                        tile.destroy();
+                        breakingRight = true;   
+                    }
                     loc.x = tile.getX() - pWidth;
                     vel.x = 0;
                     //console.log("3");
                 }
+                else if (breakingRight && currentlyBreaking == tile.getIndex()) {
+                    tile.restore();
+                    breakingRight = false;  
+                }
+                if (breakingRight && !(keyIsDown(RIGHT_ARROW) || keyIsDown(68)) && currentlyBreaking == tile.getIndex()) {
+                    tile.restore();
+                    breakingRight = false;   
+                }
                 // Floor
                 if (loc.y + vel.y + pHeight > tile.getY() && loc.y + vel.y < tile.getY() && (loc.x > tile.getX() - pWidth && loc.x < tile.getX() + TILESIZE)) {
+                    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
+                        tile.destroy();
+                        breakingDown = true;
+                    }
                     loc.y = tile.getY() - pHeight;
                     vel.y = 0;
                     if (!horizontalKeyPressed) vel.x = vel.x/1.3;
                     onFloor = true;
                     //console.log("4");
+                }
+                else if (breakingDown && currentlyBreaking == tile.getIndex()) {
+                    tile.restore();
+                    breakingDown = false;  
+                }
+                if (breakingDown && !(keyIsDown(DOWN_ARROW) || keyIsDown(83)) && currentlyBreaking == tile.getIndex()) {
+                    tile.restore();
+                    breakingDown = false;   
                 }
             }
         }

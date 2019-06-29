@@ -57,7 +57,7 @@ function Tile(xLoc, yLoc, index, id) {
       if (breakState > (breakTime / miningSpeed)) {
         this.intact = false;
         tileDetails[id].count++;
-        console.log(miningSpeed);
+        currentlyBreaking = -1;
         //saveState();
       }
     }
@@ -85,6 +85,7 @@ function Tile(xLoc, yLoc, index, id) {
       //console.log(this.id);
       lastSelectedTile = index;
       mouseHovering = true;
+      //console.log(this.id);
     }
     else { mouseHovering = false; }
   }
@@ -94,9 +95,10 @@ function Tile(xLoc, yLoc, index, id) {
   }
   
   this.destroy = function() {
-    if (!breaking && this.intact && breakable && inReach) {
+    if (currentlyBreaking == -1 && !breaking && this.intact && breakable && inReach) {
       breaking = true;
       breakStart = millis();
+      currentlyBreaking = index;
     }
   }
   
@@ -105,11 +107,16 @@ function Tile(xLoc, yLoc, index, id) {
       breaking = false;
       breakState = 0;
       breakStart = 0;
+      currentlyBreaking = -1;
     }
   }
   
   this.getIntact = function() {
     return this.intact; 
+  }
+  
+  this.getIndex = function() {
+    return index; 
   }
   
   this.getX = function() {

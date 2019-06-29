@@ -100,9 +100,9 @@ function DMine() {
          for (var y = 0; y < this.tileHeight; y++) {
              for (var x = 0; x < this.tileWidth; x++) {
                  var id = random(100);
-                 if (id < 40) { id = 0; }
-                 else if (id < 75) { id = 1; }
-                 else { id = 2; }
+                 if (id < 45) { id = 1; }
+                 else if (id < 90) { id = 2; }
+                 else { id = 3; }
                  this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, (y * this.tileWidth) + x, id));
              }
          }
