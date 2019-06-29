@@ -11,6 +11,7 @@ var shop;
 var AMine;
 var BMine;
 var CMine;
+var DMine;
 
 var tileDetails;
 var pickaxeDetails;
@@ -67,18 +68,20 @@ function setup() {
     pickaxeDetails = [
         {name: 'default', id: 0, miningSpeed: 1, cost: 0, info: 'Name: Wooden Pickaxe    Cost: $0.00    Speed: 1.0x    Description: Gotta start somewhere', sprite: woodenPickaxeSprite},
         {name: 'stone', id: 1, miningSpeed: 1.5, cost: 50, info: 'Name: Stone Pickaxe    Cost: $50.00    Speed: 1.5x    Description: Stone those stoned stones', sprite: stonePickaxeSprite},
-        {name: 'iron', id: 2, miningSpeed: 2.25, cost: 150, info: 'Name: Iron Pickaxe    Cost: $150.00    Speed: 2.25x    Description: ', sprite: ironPickaxeSprite}
+        {name: 'iron', id: 2, miningSpeed: 2, cost: 150, info: 'Name: Iron Pickaxe    Cost: $150.00    Speed: 2x    Description: ', sprite: ironPickaxeSprite}
     ];
     
     doors = [
         new Door(1240, 200, 12, 80, "BMineEntrance"),
-        new Door(1240, 200, 12, 80, "CMineEntrance")
+        new Door(1240, 200, 12, 80, "CMineEntrance"),
+        new Door(1240, 200, 12, 80, "DMineEntrance")
     ];
     
     doorDetails = [
         {name: 'A', id: 0, cost: 0, info: "Name: A-Mine Entrance    Cost: $0.00    Description: You shouldn't be reading this."},
         {name: 'B', id: 1, cost: 100, info: 'Name: B-Mine Entrance    Cost: $100.00    Description: To finity and beyond...', door: doors[0]},
-        {name: 'C', id: 2, cost: 250, info: 'Name: C-Mine Entrance    Cost: $250.00    Description: Iron > Stone', door: doors[1]}
+        {name: 'C', id: 2, cost: 250, info: 'Name: C-Mine Entrance    Cost: $250.00    Description: Iron > Stone', door: doors[1]},
+        {name: 'D', id: 3, cost: 500, info: 'Name: D-Mine Entrance    Cost: $500.00    Description: ', door: doors[2]}
     ];
     
     upgradeDetails = [
@@ -94,6 +97,7 @@ function setup() {
     AMine = new AMine();
     BMine = new BMine();
     CMine = new CMine();
+    DMine = new DMine();
     
     //console.log(shop);
     shop.setRightRoom(AMine);
@@ -102,6 +106,8 @@ function setup() {
     BMine.setLeftRoom(AMine);
     BMine.setRightRoom(CMine);
     CMine.setLeftRoom(BMine);
+    CMine.setRightRoom(DMine);
+    DMine.setLeftRoom(CMine);
     
     prisoner = new Prisoner();
     currentMine = AMine;
@@ -157,6 +163,10 @@ function saveState() {
     localStorage.setItem('AReset', JSON.stringify(AMine.lastReset));
     localStorage.setItem('BTiles', JSON.stringify(BMine.tiles));
     localStorage.setItem('BReset', JSON.stringify(BMine.lastReset));
+    localStorage.setItem('CTiles', JSON.stringify(CMine.tiles));
+    localStorage.setItem('CReset', JSON.stringify(CMine.lastReset));
+    localStorage.setItem('DTiles', JSON.stringify(DMine.tiles));
+    localStorage.setItem('DReset', JSON.stringify(DMine.lastReset));
     localStorage.setItem('sellQuantity', JSON.stringify(sellQuantity));
     localStorage.setItem('dirtCount', JSON.stringify(tileDetails[0].count));
     localStorage.setItem('stoneCount', JSON.stringify(tileDetails[1].count));
@@ -190,6 +200,9 @@ function loadState() {
         case "C":
             currentMine = CMine;
             break;
+        case "D":
+            currentMine = DMine;
+            break;
         default:
             currentMine = AMine;
             break;
@@ -210,6 +223,22 @@ function loadState() {
         }
     }
     if (JSON.parse(localStorage.getItem('BReset')) != null) BMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('BReset')));
+    if (JSON.parse(localStorage.getItem('CTiles')) != null) {
+        var tmpTiles = JSON.parse(localStorage.getItem('CTiles'));
+        for (var i = 0; i < CMine.tiles.length; i++) {
+            CMine.tiles[i].setID(tmpTiles[i].id);
+            CMine.tiles[i].intact = tmpTiles[i].intact;
+        }
+    }
+    if (JSON.parse(localStorage.getItem('CReset')) != null) CMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('CReset')));
+    if (JSON.parse(localStorage.getItem('DTiles')) != null) {
+        var tmpTiles = JSON.parse(localStorage.getItem('DTiles'));
+        for (var i = 0; i < DMine.tiles.length; i++) {
+            DMine.tiles[i].setID(tmpTiles[i].id);
+            DMine.tiles[i].intact = tmpTiles[i].intact;
+        }
+    }
+    if (JSON.parse(localStorage.getItem('DReset')) != null) DMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('DReset')));
     if (JSON.parse(localStorage.getItem('sellQuantity')) != null) {
         if (JSON.parse(localStorage.getItem('sellQuantity')) == "All") sellQuantity = "All";
         else sellQuantity = parseInt(JSON.parse(localStorage.getItem('sellQuantity')));

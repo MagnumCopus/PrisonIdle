@@ -5,8 +5,9 @@ function CMine() {
      this.tileWidth = 22;
      this.sellBlocks = [];
      this.ladders = [];
+     this.doors = [];
      this.name = "C";
-     this.resetLength = 60000 * 7.5;
+     this.resetLength = 60000 * 5;
      var d = new Date();
      this.lastReset = d.getTime();
      
@@ -20,7 +21,9 @@ function CMine() {
      this.walls.push(new Wall(160, 680, 960, 40));
      this.walls.push(new Wall(1120, 320, 40, 400));
      this.walls.push(new Wall(1120, 280, 200, 40));
-     this.walls.push(new Wall(1240, 0, 40, 280));
+     this.walls.push(new Wall(1240, 0, 40, 200));
+     
+     this.doors.push(doors[2]);
      
      this.ladders.push(new Ladder(160, 280, 12, 400, "left"));
      this.ladders.push(new Ladder(1110, 280, 12, 400, "right"));
@@ -74,6 +77,10 @@ function CMine() {
          
          for (var i = 0; i < this.ladders.length; i++) {
              this.ladders[i].display();
+         }
+         
+         for (var i = 0; i < this.doors.length; i++) {
+             this.doors[i].display();
          }
      }
      
