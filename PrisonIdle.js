@@ -10,6 +10,7 @@ var currentMine;
 var shop;
 var AMine;
 var BMine;
+var CMine;
 
 var tileDetails;
 var pickaxeDetails;
@@ -29,9 +30,11 @@ var breakAnimation
 var dirtSprite;
 var stoneSprite;
 var coalSprite;
+var ironSprite;
 
 var woodenPickaxeSprite;
 var stonePickaxeSprite;
+var ironPickaxeSprite;
 
 function preload() {
   font = loadFont('Resources/Pixellari.ttf');
@@ -48,29 +51,34 @@ function setup() {
     dirtSprite = loadImage('Resources/dirt.png');
     stoneSprite = loadImage('Resources/stone.png');
     coalSprite = loadImage('Resources/coal.png');
+    ironSprite = loadImage('Resources/iron.png');
     
     woodenPickaxeSprite = loadImage('Resources/woodenPickaxe.png');
     stonePickaxeSprite = loadImage('Resources/stonePickaxe.png');
+    ironPickaxeSprite = loadImage('Resources/ironPickaxe.png');
     
     tileDetails = [
         {name: 'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0, info: "Name: Dirt    Sell For: $0.10    Locations: A, B    Description: Diggy diggy hole", sprite: dirtSprite},
         {name: 'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, info: "Name: Stone    Sell For: $0.30    Locations: A, B, C, D    Description: ", sprite: stoneSprite},
-        {name: 'coal',    id: 2, breakTime: 3000, tColor: '#2C2925', price: 1.0, count: 0, info: "Name: Coal    Sell For: $1.00    Locations: A, B, C, D, E    Description: Almost like diamonds", sprite: coalSprite}
+        {name: 'coal',    id: 2, breakTime: 2000, tColor: '#2C2925', price: 1.0, count: 0, info: "Name: Coal    Sell For: $1.00    Locations: A, B, C, D, E    Description: Almost like diamonds", sprite: coalSprite},
+        {name: 'iron',    id: 3, breakTime: 5000, tColor: '#F0D4B5', price: 3.0, count: 0, info: "Name: Iron    Sell For: $3.00    Locations: C, D, E    Description: ", sprite: ironSprite}
     ];
     
     pickaxeDetails = [
         {name: 'default', id: 0, miningSpeed: 1, cost: 0, info: 'Name: Wooden Pickaxe    Cost: $0.00    Speed: 1.0x    Description: Gotta start somewhere', sprite: woodenPickaxeSprite},
-        {name: 'stone', id: 1, miningSpeed: 1.25, cost: 50, info: 'Name: Stone Pickaxe    Cost: $50.00    Speed: 1.25x    Description: Stone those stoned stones', sprite: stonePickaxeSprite}
+        {name: 'stone', id: 1, miningSpeed: 1.5, cost: 50, info: 'Name: Stone Pickaxe    Cost: $50.00    Speed: 1.5x    Description: Stone those stoned stones', sprite: stonePickaxeSprite},
+        {name: 'iron', id: 2, miningSpeed: 2.25, cost: 150, info: 'Name: Iron Pickaxe    Cost: $150.00    Speed: 2.25x    Description: ', sprite: ironPickaxeSprite}
     ];
     
     doors = [
-        new Door(1240, 200, 12, 80)
+        new Door(1240, 200, 12, 80, "BMineEntrance"),
+        new Door(1240, 200, 12, 80, "CMineEntrance")
     ];
     
     doorDetails = [
         {name: 'A', id: 0, cost: 0, info: "Name: A-Mine Entrance    Cost: $0.00    Description: You shouldn't be reading this."},
-        {name: 'B', id: 1, cost: 100, info: 'Name: B-Mine Entrance    Cost: $100.00    Description: To finity and beyond...', door: doors[0]}
-        //{name: 'stone', id: 1, miningSpeed: 1.25, cost: 50, info: 'Cost: $50.00    Speed: 1.25x    Description: Stone those stoned stones', sprite: stonePickaxeSprite}
+        {name: 'B', id: 1, cost: 100, info: 'Name: B-Mine Entrance    Cost: $100.00    Description: To finity and beyond...', door: doors[0]},
+        {name: 'C', id: 2, cost: 250, info: 'Name: C-Mine Entrance    Cost: $250.00    Description: Iron > Stone', door: doors[1]}
     ];
     
     upgradeDetails = [
@@ -85,12 +93,15 @@ function setup() {
     shop = new Shop();
     AMine = new AMine();
     BMine = new BMine();
+    CMine = new CMine();
     
     //console.log(shop);
     shop.setRightRoom(AMine);
     AMine.setLeftRoom(shop);
     AMine.setRightRoom(BMine);
     BMine.setLeftRoom(AMine);
+    BMine.setRightRoom(CMine);
+    CMine.setLeftRoom(BMine);
     
     prisoner = new Prisoner();
     currentMine = AMine;
@@ -175,6 +186,9 @@ function loadState() {
             break;
         case "B":
             currentMine = BMine;
+            break;
+        case "C":
+            currentMine = CMine;
             break;
         default:
             currentMine = AMine;

@@ -28,6 +28,10 @@ function UpgradeBlock(xLoc, yLoc, id) {
         return loc.y;   
     }
     
+    this.exists = function() {
+         return upgradeDetails[id].progression[upgradeDetails[id].current+1] != null;
+    }
+    
     this.displayInfo = function() {
         if (upgradeDetails[id].progression[upgradeDetails[id].current+1] != null) {
             shop.infoText = upgradeDetails[id].progression[upgradeDetails[id].current+1].info;

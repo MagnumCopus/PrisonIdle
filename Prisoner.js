@@ -49,7 +49,7 @@ function Prisoner() {
             direction = "right";
         }
         if (keyIsDown(32) || keyIsDown(UP_ARROW) || keyIsDown(87)) {
-            if (jumpReleased && !inAir) {
+            if (!inAir) {
                 vel.y -= jumpAcceleration;
                 jumpReleased = false;
             }
@@ -238,7 +238,7 @@ function Prisoner() {
         // Upgrade Block Collisions
         for (var i = 0; currentMine.upgradeBlocks != null && i < currentMine.upgradeBlocks.length; i++) {
             var upgradeBlock = currentMine.upgradeBlocks[i];
-            if (dist(loc.x, loc.y, upgradeBlock.getX(), upgradeBlock.getY()) < 100) {
+            if (upgradeBlock.exists() && dist(loc.x, loc.y, upgradeBlock.getX(), upgradeBlock.getY()) < 100) {
                 // Right Wall
                 if (loc.x + vel.x < upgradeBlock.getX() + TILESIZE && loc.x + vel.x > upgradeBlock.getX() && loc.y + pHeight > upgradeBlock.getY() && loc.y < upgradeBlock.getY() + TILESIZE) {
                     loc.x = upgradeBlock.getX() + TILESIZE;

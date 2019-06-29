@@ -1,4 +1,4 @@
-function Door(xLoc, yLoc, wWidth, wHeight) {
+function Door(xLoc, yLoc, wWidth, wHeight, name) {
     var loc = createVector(xLoc, yLoc);
     var closed = true;
     

@@ -1,13 +1,12 @@
-function BMine() {
+function CMine() {
      this.walls = [];
      this.tiles = [];
      this.tileHeight = 10;
      this.tileWidth = 22;
      this.sellBlocks = [];
      this.ladders = [];
-     this.doors = [];
-     this.name = "B";
-     this.resetLength = 60000 * 5;
+     this.name = "C";
+     this.resetLength = 60000 * 7.5;
      var d = new Date();
      this.lastReset = d.getTime();
      
@@ -21,9 +20,7 @@ function BMine() {
      this.walls.push(new Wall(160, 680, 960, 40));
      this.walls.push(new Wall(1120, 320, 40, 400));
      this.walls.push(new Wall(1120, 280, 200, 40));
-     this.walls.push(new Wall(1240, 0, 40, 200));
-     
-     this.doors.push(doors[1]);
+     this.walls.push(new Wall(1240, 0, 40, 280));
      
      this.ladders.push(new Ladder(160, 280, 12, 400, "left"));
      this.ladders.push(new Ladder(1110, 280, 12, 400, "right"));
@@ -31,9 +28,9 @@ function BMine() {
      for (var y = 0; y < this.tileHeight; y++) {
          for (var x = 0; x < this.tileWidth; x++) {
              var id = random(100);
-             if (id < 40) { id = 0; }
-             else if (id < 75) { id = 1; }
-             else { id = 2; }
+             if (id < 70) { id = 1; }
+             else if (id < 95) { id = 2; }
+             else { id = 3; }
              this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, (y * this.tileWidth) + x, id));
          }
      }
@@ -47,7 +44,7 @@ function BMine() {
          fill(34, 34, 34);
          textAlign(CENTER, BASELINE);
          textSize(200);
-         text("B", 62, 50, 1200, 300);
+         text("C", 62, 50, 1200, 300);
          
          var d = new Date();
          var timeLeft = (this.lastReset + this.resetLength) - d.getTime();
@@ -78,10 +75,6 @@ function BMine() {
          for (var i = 0; i < this.ladders.length; i++) {
              this.ladders[i].display();
          }
-         
-         for (var i = 0; i < this.doors.length; i++) {
-             this.doors[i].display();
-         }
      }
      
      this.update = function() {
@@ -107,8 +100,8 @@ function BMine() {
          for (var y = 0; y < this.tileHeight; y++) {
              for (var x = 0; x < this.tileWidth; x++) {
                  var id = random(100);
-                 if (id < 45) { id = 0; }
-                 else if (id < 90) { id = 1; }
+                 if (id < 40) { id = 0; }
+                 else if (id < 75) { id = 1; }
                  else { id = 2; }
                  this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, (y * this.tileWidth) + x, id));
              }

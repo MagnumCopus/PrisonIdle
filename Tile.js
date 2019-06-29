@@ -20,19 +20,16 @@ function Tile(xLoc, yLoc, index, id) {
       var size = TILESIZE;
       var offset = 0;
       if (breakable) {
-          if (mouseHovering) {
-              stroke(0);
-              strokeWeight(1);
-              if (details.sprite != null) {
-                  size -= 2;
-                  offset += 1;
-              } else {
-                  size -= 1;   
-              }
-          }
           fill(tColor);
-          if (details.sprite != null) image(details.sprite, xLoc + offset, yLoc + offset, size, size);
+          if (details.sprite != null) image(details.sprite, xLoc, yLoc, TILESIZE, TILESIZE);
           else rect(xLoc + offset, yLoc + offset, size, size);
+          if (mouseHovering) {
+              fill(0);
+              rect(xLoc, yLoc, 1, TILESIZE);
+              rect(xLoc, yLoc, TILESIZE, 1);
+              rect(xLoc+TILESIZE-1, yLoc, 1, TILESIZE);
+              rect(xLoc, yLoc+TILESIZE-1, TILESIZE, 1);
+          }
       }
       else {
           fill(0);
