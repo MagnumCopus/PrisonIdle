@@ -25,6 +25,7 @@ function Shop() {
      this.sellBlocks.push(new SellBlock(160, 160, 1));
      this.sellBlocks.push(new SellBlock(240, 160, 2));
      this.sellBlocks.push(new SellBlock(320, 160, 3));
+     this.sellBlocks.push(new SellBlock(400, 160, 4));
      this.sellBlocks.push(new SellBlock(960, 160, -1));
      
      this.upgradeBlocks.push(new UpgradeBlock(80, 560, 0));

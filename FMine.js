@@ -1,4 +1,4 @@
-function DMine() {
+function FMine() {
      this.walls = [];
      this.tiles = [];
      this.tileHeight = 10;
@@ -6,8 +6,8 @@ function DMine() {
      this.sellBlocks = [];
      this.ladders = [];
      this.doors = [];
-     this.name = "D";
-     this.index = 3;
+     this.name = "F";
+     this.index = 5;
      this.resetLength = 60000 * 6;
      var d = new Date();
      this.lastReset = d.getTime();
@@ -22,23 +22,23 @@ function DMine() {
      this.walls.push(new Wall(160, 680, 960, 40));
      this.walls.push(new Wall(1120, 320, 40, 400));
      this.walls.push(new Wall(1120, 280, 200, 40));
-     this.walls.push(new Wall(1240, 0, 40, 200));
+     this.walls.push(new Wall(1240, 0, 40, 280));
      
      this.ladders.push(new Ladder(160, 280, 12, 400, "left"));
      this.ladders.push(new Ladder(1110, 280, 12, 400, "right"));
      
-     this.doors.push(doors[this.index]);
+     //this.doors.push(doors[this.index]);
      
-     this.sellBlocks.push(new SellBlock(1000, 40, 1));
-     this.sellBlocks.push(new SellBlock(1080, 40, 2));
-     this.sellBlocks.push(new SellBlock(1160, 40, 3));
+     this.sellBlocks.push(new SellBlock(1000, 40, 2));
+     this.sellBlocks.push(new SellBlock(1080, 40, 3));
+     this.sellBlocks.push(new SellBlock(1160, 40, 4));
      
      for (var y = 0; y < this.tileHeight; y++) {
          for (var x = 0; x < this.tileWidth; x++) {
              var id = random(100);
-             if (id < 45) { id = 1; }
-             else if (id < 90) { id = 2; }
-             else { id = 3; }
+             if (id < 45) { id = 2; }
+             else if (id < 90) { id = 3; }
+             else { id = 4; }
              this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, (y * this.tileWidth) + x, id));
          }
      }
@@ -52,7 +52,7 @@ function DMine() {
          fill(34, 34, 34);
          textAlign(CENTER, BASELINE);
          textSize(200);
-         text("D", 62, 50, 1200, 300);
+         text("F", 62, 50, 1200, 300);
          
          var d = new Date();
          var timeLeft = (this.lastReset + this.resetLength) - d.getTime();
@@ -113,9 +113,9 @@ function DMine() {
          for (var y = 0; y < this.tileHeight; y++) {
              for (var x = 0; x < this.tileWidth; x++) {
                  var id = random(100);
-                 if (id < 45) { id = 1; }
-                 else if (id < 90) { id = 2; }
-                 else { id = 3; }
+                 if (id < 45) { id = 2; }
+                 else if (id < 90) { id = 3; }
+                 else { id = 4; }
                  this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, (y * this.tileWidth) + x, id));
              }
          }

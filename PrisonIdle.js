@@ -12,6 +12,8 @@ var AMine;
 var BMine;
 var CMine;
 var DMine;
+var EMine;
+var FMine;
 
 var tileDetails;
 var pickaxeDetails;
@@ -28,14 +30,16 @@ var font;
 var wallSprite;
 var ladderLeftSprite;
 var ladderRightSprite;
-var breakAnimation
+var breakAnimation;
 var dirtSprite;
 var stoneSprite;
 var coalSprite;
+var copperSprite;
 var ironSprite;
 
 var woodenPickaxeSprite;
 var stonePickaxeSprite;
+var copperPickaxeSprite;
 var ironPickaxeSprite;
 
 function preload() {
@@ -53,46 +57,58 @@ function setup() {
     dirtSprite = loadImage('Resources/dirt.png');
     stoneSprite = loadImage('Resources/stone.png');
     coalSprite = loadImage('Resources/coal.png');
+    copperSprite = loadImage('Resources/copper.png');
     ironSprite = loadImage('Resources/iron.png');
     
     woodenPickaxeSprite = loadImage('Resources/woodenPickaxe.png');
     stonePickaxeSprite = loadImage('Resources/stonePickaxe.png');
+    copperPickaxeSprite = loadImage('Resources/copperPickaxe.png');
     ironPickaxeSprite = loadImage('Resources/ironPickaxe.png');
     
     tileDetails = [
-        {name: 'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0, info: "Name: Dirt    Sell For: $0.10    Locations: A, B    Description: Diggy diggy hole", minimumMine: 0, sprite: dirtSprite},
-        {name: 'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, info: "Name: Stone    Sell For: $0.30    Locations: A, B, C, D    Description: ", minimumMine: 0, sprite: stoneSprite},
-        {name: 'coal',    id: 2, breakTime: 2000, tColor: '#2C2925', price: 1.0, count: 0, info: "Name: Coal    Sell For: $1.00    Locations: A, B, C, D, E    Description: Almost like diamonds", minimumMine: 0, sprite: coalSprite},
-        {name: 'iron',    id: 3, breakTime: 5000, tColor: '#F0D4B5', price: 3.0, count: 0, info: "Name: Iron    Sell For: $3.00    Locations: C, D, E    Description: ", minimumMine: 2, sprite: ironSprite}
+        {name: 'dirt',    id: 0, breakTime: 500, tColor: '#735A37', price: .1, count: 0, info: "Name: Dirt    Sell For: $0.10    Locations: A, B", minimumMine: 0, sprite: dirtSprite},
+        {name: 'stone',   id: 1, breakTime: 1000, tColor: '#939393', price: .3, count: 0, info: "Name: Stone    Sell For: $0.30    Locations: A, B, C, D", minimumMine: 0, sprite: stoneSprite},
+        {name: 'coal',    id: 2, breakTime: 2000, tColor: '#2C2925', price: 1.0, count: 0, info: "Name: Coal    Sell For: $1.00    Locations: A, B, C, D, E, F", minimumMine: 0, sprite: coalSprite},
+        {name: 'copper',    id: 3, breakTime: 5000, tColor: '#2C2925', price: 3.0, count: 0, info: "Name: Copper    Sell For: $3.00    Locations: D, E, F, G, H, I", minimumMine: 2, sprite: copperSprite},
+        {name: 'iron',    id: 4, breakTime: 10000, tColor: '#F0D4B5', price: 10.0, count: 0, info: "Name: Iron    Sell For: $10.00    Locations: F, G, H, I, J, K", minimumMine: 4, sprite: ironSprite}
     ];
     
     recipes = [
         {name: 'stonePickaxe', id: 0, parts: [
             {id: 1, count: 50}
         ]},
-        {name: 'ironPickaxe', id: 1, parts: [
+        {name: 'copperPickaxe', id: 1, parts: [
             {id: 2, count: 100},
             {id: 3, count: 50}
+        ]},
+        {name: 'ironPickaxe', id: 2, parts: [
+            {id: 2, count: 500},
+            {id: 4, count: 100}
         ]}
     ];
     
     pickaxeDetails = [
         {name: 'default', id: 0, miningSpeed: 1, cost: 0, info: 'Name: Wooden Pickaxe    Cost: $0.00    Speed: 1.0x', sprite: woodenPickaxeSprite},
         {name: 'stone', id: 1, miningSpeed: 1.5, recipe: recipes[0], info: 'Name: Stone Pickaxe    Cost: 50 Stone    Speed: 1.5x', sprite: stonePickaxeSprite},
-        {name: 'iron', id: 2, miningSpeed: 2, recipe: recipes[1], info: 'Name: Iron Pickaxe    Cost: 50 Iron and 100 Coal    Speed: 2x', sprite: ironPickaxeSprite}
+        {name: 'copper', id: 2, miningSpeed: 2, recipe: recipes[1], info: 'Name: Copper Pickaxe    Cost: 50 Copper and 100 Coal    Speed: 2x', sprite: copperPickaxeSprite},
+        {name: 'iron', id: 3, miningSpeed: 4, recipe: recipes[2], info: 'Name: Iron Pickaxe    Cost: 100 Iron and 500 Coal    Speed: 4x', sprite: ironPickaxeSprite}
     ];
     
     doors = [
         new Door(1240, 200, 12, 80, "BMineEntrance"),
         new Door(1240, 200, 12, 80, "CMineEntrance"),
-        new Door(1240, 200, 12, 80, "DMineEntrance")
+        new Door(1240, 200, 12, 80, "DMineEntrance"),
+        new Door(1240, 200, 12, 80, "EMineEntrance"),
+        new Door(1240, 200, 12, 80, "FMineEntrance")
     ];
     
     doorDetails = [
-        {name: 'A', id: 0, cost: 0, info: "Name: A-Mine Entrance    Cost: $0.00    Description: You shouldn't be reading this."},
-        {name: 'B', id: 1, cost: 100, info: 'Name: B-Mine Entrance    Cost: $100.00    Description: To finity and beyond...', door: doors[0]},
-        {name: 'C', id: 2, cost: 250, info: 'Name: C-Mine Entrance    Cost: $250.00    Description: Iron > Stone', door: doors[1]},
-        {name: 'D', id: 3, cost: 500, info: 'Name: D-Mine Entrance    Cost: $500.00    Description: ', door: doors[2]}
+        {name: 'A', id: 0, cost: 0, info: "Name: A-Mine Entrance    Cost: $0.00"},
+        {name: 'B', id: 1, cost: 100, info: 'Name: B-Mine Entrance    Cost: $100.00', door: doors[0]},
+        {name: 'C', id: 2, cost: 250, info: 'Name: C-Mine Entrance    Cost: $250.00', door: doors[1]},
+        {name: 'D', id: 3, cost: 500, info: 'Name: D-Mine Entrance    Cost: $500.00', door: doors[2]},
+        {name: 'E', id: 4, cost: 1000, info: 'Name: E-Mine Entrance    Cost: $1000.00', door: doors[3]},
+        {name: 'F', id: 5, cost: 2000, info: 'Name: F-Mine Entrance    Cost: $2000.00', door: doors[4]}
     ];
     
     upgradeDetails = [
@@ -109,6 +125,8 @@ function setup() {
     BMine = new BMine();
     CMine = new CMine();
     DMine = new DMine();
+    EMine = new EMine();
+    FMine = new FMine();
     
     //console.log(shop);
     shop.setRightRoom(AMine);
@@ -119,6 +137,10 @@ function setup() {
     CMine.setLeftRoom(BMine);
     CMine.setRightRoom(DMine);
     DMine.setLeftRoom(CMine);
+    DMine.setRightRoom(EMine);
+    EMine.setLeftRoom(DMine);
+    EMine.setRightRoom(FMine);
+    FMine.setLeftRoom(EMine);
     
     prisoner = new Prisoner();
     currentMine = AMine;
@@ -149,6 +171,8 @@ function draw() {
     BMine.checkReset();
     CMine.checkReset();
     DMine.checkReset();
+    EMine.checkReset();
+    FMine.checkReset();
     
     prisoner.display();
     prisoner.update();
@@ -180,6 +204,10 @@ function saveState() {
     localStorage.setItem('CReset', JSON.stringify(CMine.lastReset));
     localStorage.setItem('DTiles', JSON.stringify(DMine.tiles));
     localStorage.setItem('DReset', JSON.stringify(DMine.lastReset));
+    localStorage.setItem('ETiles', JSON.stringify(EMine.tiles));
+    localStorage.setItem('EReset', JSON.stringify(EMine.lastReset));
+    localStorage.setItem('FTiles', JSON.stringify(FMine.tiles));
+    localStorage.setItem('FReset', JSON.stringify(FMine.lastReset));
     localStorage.setItem('sellQuantity', JSON.stringify(sellQuantity));
     localStorage.setItem('dirtCount', JSON.stringify(tileDetails[0].count));
     localStorage.setItem('stoneCount', JSON.stringify(tileDetails[1].count));
@@ -217,6 +245,12 @@ function loadState() {
         case "D":
             currentMine = DMine;
             break;
+        case "E":
+            currentMine = EMine;
+            break;
+        case "F":
+            currentMine = FMine;
+            break;
         default:
             currentMine = AMine;
             break;
@@ -253,6 +287,22 @@ function loadState() {
         }
     }
     if (JSON.parse(localStorage.getItem('DReset')) != null) DMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('DReset')));
+    if (JSON.parse(localStorage.getItem('ETiles')) != null) {
+        var tmpTiles = JSON.parse(localStorage.getItem('ETiles'));
+        for (var i = 0; i < EMine.tiles.length; i++) {
+            EMine.tiles[i].setID(tmpTiles[i].id);
+            EMine.tiles[i].intact = tmpTiles[i].intact;
+        }
+    }
+    if (JSON.parse(localStorage.getItem('EReset')) != null) EMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('EReset')));
+    if (JSON.parse(localStorage.getItem('FTiles')) != null) {
+        var tmpTiles = JSON.parse(localStorage.getItem('FTiles'));
+        for (var i = 0; i < FMine.tiles.length; i++) {
+            FMine.tiles[i].setID(tmpTiles[i].id);
+            FMine.tiles[i].intact = tmpTiles[i].intact;
+        }
+    }
+    if (JSON.parse(localStorage.getItem('FReset')) != null) FMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('FReset')));
     if (JSON.parse(localStorage.getItem('sellQuantity')) != null) {
         if (JSON.parse(localStorage.getItem('sellQuantity')) == "All") sellQuantity = "All";
         else sellQuantity = parseInt(JSON.parse(localStorage.getItem('sellQuantity')));
@@ -260,7 +310,8 @@ function loadState() {
     if (JSON.parse(localStorage.getItem('dirtCount')) != null) tileDetails[0].count = parseInt(JSON.parse(localStorage.getItem('dirtCount')));
     if (JSON.parse(localStorage.getItem('stoneCount')) != null) tileDetails[1].count = parseInt(JSON.parse(localStorage.getItem('stoneCount')));
     if (JSON.parse(localStorage.getItem('coalCount')) != null) tileDetails[2].count = parseInt(JSON.parse(localStorage.getItem('coalCount')));
-    if (JSON.parse(localStorage.getItem('ironCount')) != null) tileDetails[3].count = parseInt(JSON.parse(localStorage.getItem('ironCount')));
+    if (JSON.parse(localStorage.getItem('copperCount')) != null) tileDetails[3].count = parseInt(JSON.parse(localStorage.getItem('copperCount')));
+    if (JSON.parse(localStorage.getItem('ironCount')) != null) tileDetails[4].count = parseInt(JSON.parse(localStorage.getItem('ironCount')));
     //console.log(currentMine.tiles);
 }
 
