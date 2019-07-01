@@ -204,39 +204,16 @@ function newConnection(socket) {
 		var connectionData = {
 			color: playerColors[(nextColorIndex++) % playerColors.length],
 			onlinePlayers: onlinePlayers,
-			mines: {
-				AMine: {
-					timeSinceReset: d - mineData[0].lastReset,
-					resetLength: mineData[0].resetLength * 60000,
-					tiles: mineData[0].tiles
-				},
-				BMine: {
-					timeSinceReset: d - mineData[1].lastReset,
-					resetLength: mineData[1].resetLength * 60000,
-					tiles: mineData[1].tiles
-				},
-				CMine: {
-					timeSinceReset: d - mineData[2].lastReset,
-					resetLength: mineData[2].resetLength * 60000,
-					tiles: mineData[2].tiles
-				},
-				DMine: {
-					timeSinceReset: d - mineData[3].lastReset,
-					resetLength: mineData[3].resetLength * 60000,
-					tiles: mineData[3].tiles
-				},
-				EMine: {
-					timeSinceReset: d - mineData[4].lastReset,
-					resetLength: mineData[4].resetLength * 60000,
-					tiles: mineData[4].tiles
-				},
-				FMine: {
-					timeSinceReset: d - mineData[5].lastReset,
-					resetLength: mineData[5].resetLength * 60000,
-					tiles: mineData[5].tiles
-				}
-			}
-		};
+			mines: [];
+		}
+		for (var i = 0; i < mineData.length; i++) {
+			connectionData.mines.push({
+				name: mineData[i].name,
+				timeSinceReset: d - mineData[i].lastReset,
+				resetLength: mineData[i].resetLength * 60000,
+				tiles: mineData[i].tiles
+			});
+		}
 		socket.emit('connectInfo', connectionData)
 		//console.log(connectionData);
 

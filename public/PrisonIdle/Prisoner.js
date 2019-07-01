@@ -353,11 +353,9 @@ function Prisoner() {
     }
     
     this.resetLoc = function() {
-        if (currentMine.name == shop.name) {
+        if (currentMine.name == mines[0].name) {
             loc = createVector(1126, 280 - pHeight); 
             direction = 'left';
-            loc = createVector(126, 280 - pHeight); 
-            direction = 'right';
         } else {
             loc = createVector(126, 280 - pHeight); 
             direction = 'right';

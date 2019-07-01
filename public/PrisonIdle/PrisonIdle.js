@@ -13,7 +13,6 @@ var miningSpeed = 1;
 
 var currentMine;
 var shop;
-var AMine;
 var BMine;
 var CMine;
 var DMine;
@@ -59,18 +58,14 @@ function preload() {
         playerCount = data.onlinePlayers;
         
         var d = new Date().getTime();
-        AMine.resetMine(data.mines.AMine.resetLength, data.mines.AMine.tiles);
-        AMine.lastReset = d - data.mines.AMine.timeSinceReset;
-        BMine.resetMine(data.mines.BMine.resetLength, data.mines.BMine.tiles);
-        BMine.lastReset = d - data.mines.BMine.timeSinceReset;
-        CMine.resetMine(data.mines.CMine.resetLength, data.mines.CMine.tiles);
-        CMine.lastReset = d - data.mines.CMine.timeSinceReset;
-        DMine.resetMine(data.mines.DMine.resetLength, data.mines.DMine.tiles);
-        DMine.lastReset = d - data.mines.DMine.timeSinceReset;
-        EMine.resetMine(data.mines.EMine.resetLength, data.mines.EMine.tiles);
-        EMine.lastReset = d - data.mines.EMine.timeSinceReset;
-        FMine.resetMine(data.mines.FMine.resetLength, data.mines.FMine.tiles);
-        FMine.lastReset = d - data.mines.FMine.timeSinceReset;
+        for (var i = 0; i < data.mines.length; i++) {
+            for (var j = 0; j < mines.length; j++) {
+                if (data.mines[i].name == mines[j].name) {
+                    mines[j].resetMine(data.mines[i].resetLength, data.mines[i].tiles);
+                    mines[j].lastReset = d - data.mines[i].timeSinceReset;
+                }
+            }
+        }
 
         prisoner = new Prisoner();
         prisoner.resetLoc();
@@ -87,35 +82,21 @@ function preload() {
     socket.on('playerMoved', updateOtherPlayerLocation);
 
     socket.on('breakBlock', function (data) {
-        if (data.mine == 'AMine') {
-            AMine.tiles[data.index].intact = false;
-        } else if (data.mine == 'BMine') {
-            BMine.tiles[data.index].intact = false;
-        } else if (data.mine == 'CMine') {
-            CMine.tiles[data.index].intact = false;
-        } else if (data.mine == 'DMine') {
-            DMine.tiles[data.index].intact = false;
-        } else if (data.mine == 'EMine') {
-            EMine.tiles[data.index].intact = false;
-        } else if (data.mine == 'FMine') {
-            FMine.tiles[data.index].intact = false;
+        for (var i = 0; i < data.mines.length; i++) {
+            for (var j = 0; j < mines.length; j++) {
+                if (data.mines[i].name == mines[j].name) {
+                    mines[j].tiles[data.index].intact = false;
+                }
+            }
         }
     });
 
     socket.on('resetMine', function (data) {
-        for (var i = 0; i < mines.length; i++) {
-            if (data.mine == 'AMine') {
-                AMine.resetMine(data.resetLength, data.tiles);
-            } else if (data.mine == 'BMine') {
-                BMine.resetMine(data.resetLength, data.tiles);
-            } else if (data.mine == 'CMine') {
-                CMine.resetMine(data.resetLength, data.tiles);
-            } else if (data.mine == 'DMine') {
-                DMine.resetMine(data.resetLength, data.tiles);
-            } else if (data.mine == 'EMine') {
-                EMine.resetMine(data.resetLength, data.tiles);
-            } else if (data.mine == 'FMine') {
-                FMine.resetMine(data.resetLength, data.tiles);
+        for (var i = 0; i < data.mines.length; i++) {
+            for (var j = 0; j < mines.length; j++) {
+                if (data.mines[i].name == mines[j].name) {
+                    mines[j].resetMine(data.resetLength, data.tiles);
+                }
             }
         }
     });
@@ -206,37 +187,31 @@ function setup() {
     this.inventory.push(new SellBlock(80, 120, 0));
     this.inventory.push(new SellBlock(160, 120, 1));
     this.inventory.push(new SellBlock(240, 120, 2));
-    
-    shop = new Shop();
-    AMine = new AMine();
-    BMine = new BMine();
-    CMine = new CMine();
-    DMine = new DMine();
-    EMine = new EMine();
-    FMine = new FMine();
 
-    //mines.push(new AMine());
-    //mines.push(new BMine());
-    //mines.push(new CMine());
-    //mines.push(new DMine());
-    //mines.push(new EMine());
-    //mines.push(new FMine());
+    console.log('making mines');
+    mines.push(new Shop());
+    mines.push(new AMine());
+    mines.push(new BMine());
+    mines.push(new CMine());
+    mines.push(new DMine());
+    mines.push(new EMine());
+    mines.push(new FMine());
     
     //console.log(shop);
-    shop.setRightRoom(AMine);
-    AMine.setLeftRoom(shop);
-    AMine.setRightRoom(BMine);
-    BMine.setLeftRoom(AMine);
-    BMine.setRightRoom(CMine);
-    CMine.setLeftRoom(BMine);
-    CMine.setRightRoom(DMine);
-    DMine.setLeftRoom(CMine);
-    DMine.setRightRoom(EMine);
-    EMine.setLeftRoom(DMine);
-    EMine.setRightRoom(FMine);
-    FMine.setLeftRoom(EMine);
+    mines[0].setRightRoom(mines[1]);
+    mines[1].setLeftRoom(mines[0]);
+    mines[1].setRightRoom(mines[2]);
+    mines[2].setLeftRoom(mines[1]);
+    mines[2].setRightRoom(mines[3]);
+    mines[3].setLeftRoom(mines[2]);
+    mines[3].setRightRoom(mines[4]);
+    mines[4].setLeftRoom(mines[3]);
+    mines[4].setRightRoom(mines[5]);
+    mines[5].setLeftRoom(mines[4]);
+    mines[5].setRightRoom(mines[6]);
+    mines[6].setLeftRoom(mines[5]);
     
-    currentMine = AMine;
+    currentMine = mines[1];
     
     loadState();
     
@@ -257,12 +232,6 @@ function draw() {
     textAlign(LEFT, BASELINE);
     text("$ " + money.toFixed(2), 90, 67);
     text("Players Online: " + playerCount, 90, 92);
-
-    if (currentMine.name != "Shop") {
-        for (var i = 0; i < inventory.length; i++) {
-            //this.inventory[i].display();
-        }  
-    }
 
     for (var i = 0; i < otherPlayers.length; i++) {
         if (otherPlayers[i].mine == currentMine.name) {
@@ -332,31 +301,10 @@ function loadState() {
         miningSpeed = upgradeDetails[0].progression[upgradeDetails[0].current].miningSpeed;   
     }
     if (JSON.parse(localStorage.getItem('currentMine')) != null) var mineName = JSON.parse(localStorage.getItem('currentMine'));
-    switch(mineName) {
-        case shop.name:
-            currentMine = shop;
-            break;
-        case AMine.name:
-            currentMine = AMine;
-            break;
-        case BMine.name:
-            currentMine = BMine;
-            break;
-        case CMine.name:
-            currentMine = CMine;
-            break;
-        case DMine.name:
-            currentMine = DMine;
-            break;
-        case EMine.name:
-            currentMine = EMine;
-            break;
-        case FMine.name:
-            currentMine = FMine;
-            break;
-        default:
-            currentMine = AMine;
-            break;
+    for (var j = 0; j < mines.length; j++) {
+        if (mineName == mines[j].name) {
+            currentMine = mines[j];
+        }
     }
     if (JSON.parse(localStorage.getItem('sellQuantity')) != null) {
         if (JSON.parse(localStorage.getItem('sellQuantity')) == "All") sellQuantity = "All";
