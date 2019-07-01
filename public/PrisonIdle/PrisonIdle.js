@@ -73,6 +73,7 @@ function preload() {
         FMine.lastReset = d - data.mines.FMine.timeSinceReset;
 
         prisoner = new Prisoner();
+        prisoner.resetLoc();
         prisoner.playerColor = data.color;
         prisoner.emitLocation();
     });
