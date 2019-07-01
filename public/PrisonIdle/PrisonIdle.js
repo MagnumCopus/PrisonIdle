@@ -214,12 +214,12 @@ function setup() {
     EMine = new EMine();
     FMine = new FMine();
 
-    mines.push(new AMine());
-    mines.push(new BMine());
-    mines.push(new CMine());
-    mines.push(new DMine());
-    mines.push(new EMine());
-    mines.push(new FMine());
+    //mines.push(new AMine());
+    //mines.push(new BMine());
+    //mines.push(new CMine());
+    //mines.push(new DMine());
+    //mines.push(new EMine());
+    //mines.push(new FMine());
     
     //console.log(shop);
     shop.setRightRoom(AMine);
