@@ -9,8 +9,7 @@ function Tile(xLoc, yLoc, index, id) {
   
   var breakStart = 0;
   var breakState = 0;
-  var details = tileDetails[id];
-  var tColor = color(details.tColor);
+  var details = tileDetails[this.id];
   var breakTime = details.breakTime;
   
   this.display = function() {
@@ -20,9 +19,7 @@ function Tile(xLoc, yLoc, index, id) {
       var size = TILESIZE;
       var offset = 0;
       if (breakable) {
-          fill(tColor);
           if (details.sprite != null) image(details.sprite, xLoc, yLoc, TILESIZE, TILESIZE);
-          else rect(xLoc + offset, yLoc + offset, size, size);
           if (mouseHovering) {
               fill(0);
               rect(xLoc, yLoc, 1, TILESIZE);
@@ -53,12 +50,15 @@ function Tile(xLoc, yLoc, index, id) {
   this.update = function() {
     if (this.intact && breaking) {
       breakState = millis() - breakStart;
-      //tColor = map(breakState, breakTime, 0, 0, 255);
       if (breakState > (breakTime / miningSpeed)) {
         this.intact = false;
-        console.log(this.id);
         tileDetails[this.id].count++;
         currentlyBreaking = -1;
+        var data = {
+          index: index,
+          mine: currentMine.name
+        };
+        socket.emit('breakBlock', data);
         //saveState();
       }
     }
@@ -76,9 +76,13 @@ function Tile(xLoc, yLoc, index, id) {
     }
     
     // Check if tile is in reach
-    var pLoc = createVector(prisoner.getX() + prisoner.getWidth()/2, prisoner.getY() + prisoner.getHeight()/2);
-    if (dist(pLoc.x, pLoc.y, xLoc + TILESIZE/2, yLoc + TILESIZE/2) > 100) inReach = false;
-    else inReach = true;
+    if (prisoner != null) {
+        var pLoc = createVector(prisoner.getX() + prisoner.getWidth()/2, prisoner.getY() + prisoner.getHeight()/2);
+        if (dist(pLoc.x, pLoc.y, xLoc + TILESIZE/2, yLoc + TILESIZE/2) > 100) inReach = false;
+        else inReach = true;
+    } else {
+        inReach = false;
+    }
   }
   
   this.checkMouse = function() {
@@ -104,12 +108,10 @@ function Tile(xLoc, yLoc, index, id) {
   }
   
   this.restore = function() {
-    if (breaking && this.intact) {
-      breaking = false;
-      breakState = 0;
-      breakStart = 0;
-      currentlyBreaking = -1;
-    }
+    breaking = false;
+    breakState = 0;
+    breakStart = 0;
+    currentlyBreaking = -1;
   }
   
   this.getIntact = function() {
@@ -128,10 +130,13 @@ function Tile(xLoc, yLoc, index, id) {
       return loc.y;   
   }
   
+  this.setBreakable = function(value) {
+    breakable = value;
+  }
+
   this.setID = function(id) {
       this.id = id;
       details = tileDetails[id];
-      tColor = color(details.tColor);
       breakTime = details.breakTime;
   }
 }

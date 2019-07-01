@@ -1,14 +1,14 @@
-function BMine() {
+function AMine() {
      this.walls = [];
      this.tiles = [];
      this.tileHeight = 10;
      this.tileWidth = 22;
      this.sellBlocks = [];
-     this.ladders = [];
      this.doors = [];
-     this.name = "B";
-     this.index = 1;
-     this.resetLength = 60000 * 4;
+     this.ladders = [];
+     this.name = "AMine";
+     this.index = 0;
+     this.resetLength = 0;
      var d = new Date();
      this.lastReset = d.getTime();
      
@@ -24,26 +24,17 @@ function BMine() {
      this.walls.push(new Wall(1120, 280, 200, 40));
      this.walls.push(new Wall(1240, 0, 40, 200));
      
-     this.doors.push(doors[1]);
-     
      this.ladders.push(new Ladder(160, 280, 12, 400, "left"));
      this.ladders.push(new Ladder(1110, 280, 12, 400, "right"));
+     
+     this.doors.push(doors[0]);
      
      this.sellBlocks.push(new SellBlock(1000, 40, 0));
      this.sellBlocks.push(new SellBlock(1080, 40, 1));
      this.sellBlocks.push(new SellBlock(1160, 40, 2));
      
-     for (var y = 0; y < this.tileHeight; y++) {
-         for (var x = 0; x < this.tileWidth; x++) {
-             var id = random(100);
-             if (id < 40) { id = 0; }
-             else if (id < 75) { id = 1; }
-             else { id = 2; }
-             this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, (y * this.tileWidth) + x, id));
-         }
-     }
-     
      this.display = function() {
+         //console.log(this.lastReset);
          fill(33, 30, 22);
          rect(0, 280, 1280, 440);
          fill(134, 198, 250);
@@ -52,7 +43,7 @@ function BMine() {
          fill(34, 34, 34);
          textAlign(CENTER, BASELINE);
          textSize(200);
-         text("B", 62, 50, 1200, 300);
+         text("A", 62, 50, 1200, 300);
          
          var d = new Date();
          var timeLeft = (this.lastReset + this.resetLength) - d.getTime();
@@ -94,34 +85,35 @@ function BMine() {
              this.tiles[i].checkMouse();
              this.tiles[i].update();
          } 
-         
-         this.checkReset();
      }
      
-     this.checkReset = function() {
-         var d = new Date();
-         if ((this.lastReset + this.resetLength) - d.getTime() < 0) {
-             if (currentMine.name == this.name) prisoner.setY(280 - prisoner.getHeight());
-             this.resetTiles();   
-             currentlyBreaking = -1;
-             saveState();
-         }
-     }
-     
-     this.resetTiles = function() {
-         this.tiles = [];
+     this.resetMine = function(resetLength, tiles) {
+         if (prisoner != null && currentMine.name == this.name) prisoner.setY(280 - prisoner.getHeight());
+         //this.resetTiles();
          for (var y = 0; y < this.tileHeight; y++) {
-             for (var x = 0; x < this.tileWidth; x++) {
-                 var id = random(100);
-                 if (id < 45) { id = 0; }
-                 else if (id < 90) { id = 1; }
-                 else { id = 2; }
-                 this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, (y * this.tileWidth) + x, id));
-             }
-         }
-         
-         var d = new Date();
-         this.lastReset = d.getTime();
+            for (var x = 0; x < this.tileWidth; x++) {
+                var index = (y * this.tileWidth) + x;
+                for (var j = 0; j < tileDetails.length; j++) {
+                    if (tileDetails[j].name == tiles[index].name) {
+                        if (index >= this.tiles.length) {
+                            this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, index, j));
+                        }
+                        else {
+                            this.tiles[index].restore();
+                            this.tiles[index].setID(tileDetails[j].id);
+                        }
+                        this.tiles[index].setBreakable(false);
+                        this.tiles[index].intact = tiles[index].intact;
+                        break;
+                    }
+                }
+            }
+         }  
+         currentlyBreaking = -1;
+         saveState();
+         this.lastReset = new Date().getTime();
+         console.log(resetLength);
+         this.resetLength = resetLength;
      }
      
      this.setLeftRoom = function(leftRoom) {

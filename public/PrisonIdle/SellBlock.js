@@ -16,6 +16,10 @@ function SellBlock(xLoc, yLoc, id) {
             textAlign(CENTER, CENTER);
             if (id >= 0) text(tileDetails[id].count, loc.x, loc.y, TILESIZE*1.12, TILESIZE);
             else text(sellQuantity, loc.x, loc.y, TILESIZE*1.12, TILESIZE);
+        } else {
+            noStroke();
+            fill(36);
+            rect(loc.x, loc.y, TILESIZE, TILESIZE);
         }
     }
     
@@ -28,11 +32,14 @@ function SellBlock(xLoc, yLoc, id) {
     }
     
     this.displayInfo = function() {
-        if (id >= 0) {
+        if (id >= 0 && tileDetails[id] && this.minimumMineMet()) {
             shop.infoText = tileDetails[id].info;
             this.displayingInfo = true;
-        } else {
+        } else if (id == -1) {
             shop.infoText = "Change the amount of minerals bulk sold to the store";
+            this.displayingInfo = true;
+        } else {
+            shop.infoText = "???";
             this.displayingInfo = true;
         }
     }
@@ -45,26 +52,31 @@ function SellBlock(xLoc, yLoc, id) {
     }
     
     this.sell = function() {
-        if (id >= 0) {
-            if (sellQuantity == "All" || tileDetails[id].count < sellQuantity) {
-                money += tileDetails[id].count * tileDetails[id].price;
-                tileDetails[id].count = 0;
+        if (id == -1 || tileDetails[id] != null) {
+            if (id >= 0) {
+                if (sellQuantity == "All" || tileDetails[id].count < sellQuantity) {
+                    money += tileDetails[id].count * tileDetails[id].price;
+                    tileDetails[id].count = 0;
+                }
+                else {
+                    tileDetails[id].count -= sellQuantity;
+                    money += tileDetails[id].price * sellQuantity;
+                }
+            } else {
+                if (sellQuantity == 1) sellQuantity = 5;
+                else if (sellQuantity == 5) sellQuantity = 25;
+                else if (sellQuantity == 25) sellQuantity = "All";
+                else if (sellQuantity == "All") sellQuantity = 1;
             }
-            else {
-                tileDetails[id].count -= sellQuantity;
-                money += tileDetails[id].price * sellQuantity;
-            }
-        } else {
-            if (sellQuantity == 1) sellQuantity = 5;
-            else if (sellQuantity == 5) sellQuantity = 25;
-            else if (sellQuantity == 25) sellQuantity = "All";
-            else if (sellQuantity == "All") sellQuantity = 1;
         }
-        //saveState();
     }
     
     this.minimumMineMet = function() {
-        if (id >= 0) return upgradeDetails[1].current >= tileDetails[id].minimumMine;
-        return true;
+        if (id == -1 || tileDetails[id] != null) {
+            if (id >= 0) return upgradeDetails[1].current >= tileDetails[id].minimumMine;
+            return true;
+        } else {
+            return false;
+        }
     }
 }

@@ -1,4 +1,9 @@
 
+var socket;
+var connectionData;
+var otherPlayers = [];
+var playerCount = 0;
+
 var prisoner;
 var money = 0;
 var lastSelectedTile = -1;
@@ -14,6 +19,8 @@ var CMine;
 var DMine;
 var EMine;
 var FMine;
+
+var mines = [AMine];
 
 var tileDetails;
 var pickaxeDetails;
@@ -43,12 +50,91 @@ var copperPickaxeSprite;
 var ironPickaxeSprite;
 
 function preload() {
-  font = loadFont('Resources/Pixellari.ttf');
+    font = loadFont('Resources/Pixellari.ttf');
+
+    socket = io.connect(location.origin.replace(/^http/, 'ws'));
+    
+    socket.on('connectInfo', function (data) {
+        console.log(data);
+        playerCount = data.onlinePlayers;
+        
+        var d = new Date().getTime();
+        AMine.resetMine(data.mines.AMine.resetLength, data.mines.AMine.tiles);
+        AMine.lastReset = d - data.mines.AMine.timeSinceReset;
+        BMine.resetMine(data.mines.BMine.resetLength, data.mines.BMine.tiles);
+        BMine.lastReset = d - data.mines.BMine.timeSinceReset;
+        CMine.resetMine(data.mines.CMine.resetLength, data.mines.CMine.tiles);
+        CMine.lastReset = d - data.mines.CMine.timeSinceReset;
+        DMine.resetMine(data.mines.DMine.resetLength, data.mines.DMine.tiles);
+        DMine.lastReset = d - data.mines.DMine.timeSinceReset;
+        EMine.resetMine(data.mines.EMine.resetLength, data.mines.EMine.tiles);
+        EMine.lastReset = d - data.mines.EMine.timeSinceReset;
+        FMine.resetMine(data.mines.FMine.resetLength, data.mines.FMine.tiles);
+        FMine.lastReset = d - data.mines.FMine.timeSinceReset;
+
+        prisoner = new Prisoner();
+        prisoner.playerColor = data.color;
+        prisoner.emitLocation();
+    });
+
+    socket.on('playerConnected', function (data) {
+        console.log('new player connected');
+        playerCount = data.onlinePlayers;
+        prisoner.emitLocation();
+    });
+
+    socket.on('playerMoved', updateOtherPlayerLocation);
+
+    socket.on('breakBlock', function (data) {
+        if (data.mine == 'AMine') {
+            AMine.tiles[data.index].intact = false;
+        } else if (data.mine == 'BMine') {
+            BMine.tiles[data.index].intact = false;
+        } else if (data.mine == 'CMine') {
+            CMine.tiles[data.index].intact = false;
+        } else if (data.mine == 'DMine') {
+            DMine.tiles[data.index].intact = false;
+        } else if (data.mine == 'EMine') {
+            EMine.tiles[data.index].intact = false;
+        } else if (data.mine == 'FMine') {
+            FMine.tiles[data.index].intact = false;
+        }
+    });
+
+    socket.on('resetMine', function (data) {
+        for (var i = 0; i < mines.length; i++) {
+            if (data.mine == 'AMine') {
+                AMine.resetMine(data.resetLength, data.tiles);
+            } else if (data.mine == 'BMine') {
+                BMine.resetMine(data.resetLength, data.tiles);
+            } else if (data.mine == 'CMine') {
+                CMine.resetMine(data.resetLength, data.tiles);
+            } else if (data.mine == 'DMine') {
+                DMine.resetMine(data.resetLength, data.tiles);
+            } else if (data.mine == 'EMine') {
+                EMine.resetMine(data.resetLength, data.tiles);
+            } else if (data.mine == 'FMine') {
+                FMine.resetMine(data.resetLength, data.tiles);
+            }
+        }
+    });
+
+    socket.on('playerDisconnected', function (data) {
+        var newPlayerList = [];
+        for (var i = 0; i < otherPlayers.length; i++) {
+            console.log(data.id);
+            if (otherPlayers[i].id != data.id) {
+                newPlayerList.push(otherPlayers[i]);
+            }
+        }
+        otherPlayers = newPlayerList;
+        playerCount = data.playerCount;
+    });
 }
 
 function setup() {
     createCanvas(1280, 720);
-    
+
     textFont(font);
     wallSprite = loadImage('Resources/wall.png');
     ladderLeftSprite = loadImage('Resources/ladderLeft.png');
@@ -103,12 +189,12 @@ function setup() {
     ];
     
     doorDetails = [
-        {name: 'A', id: 0, cost: 0, info: "Name: A-Mine Entrance    Cost: $0.00"},
-        {name: 'B', id: 1, cost: 100, info: 'Name: B-Mine Entrance    Cost: $100.00', door: doors[0]},
-        {name: 'C', id: 2, cost: 250, info: 'Name: C-Mine Entrance    Cost: $250.00', door: doors[1]},
-        {name: 'D', id: 3, cost: 500, info: 'Name: D-Mine Entrance    Cost: $500.00', door: doors[2]},
-        {name: 'E', id: 4, cost: 1000, info: 'Name: E-Mine Entrance    Cost: $1000.00', door: doors[3]},
-        {name: 'F', id: 5, cost: 2000, info: 'Name: F-Mine Entrance    Cost: $2000.00', door: doors[4]}
+        {name: 'A', id: 0, cost: 0, info: "Name: A-Mine Entrance    Cost: $0.00    Composition: 70% Dirt, 25% Stone, 5% Coal"},
+        {name: 'B', id: 1, cost: 100, info: 'Name: B-Mine Entrance    Cost: $100.00    Composition: 45% Dirt, 45% Stone, 10% Coal', door: doors[0]},
+        {name: 'C', id: 2, cost: 250, info: 'Name: C-Mine Entrance    Cost: $250.00    Composition: 70% Stone, 25% Coal, 5% Copper', door: doors[1]},
+        {name: 'D', id: 3, cost: 500, info: 'Name: D-Mine Entrance    Cost: $500.00    Composition: 45% Stone, 45% Coal, 10% Copper', door: doors[2]},
+        {name: 'E', id: 4, cost: 1000, info: 'Name: E-Mine Entrance    Cost: $1000.00    Composition: 70% Coal, 25% Copper, 5% Iron', door: doors[3]},
+        {name: 'F', id: 5, cost: 2000, info: 'Name: F-Mine Entrance    Cost: $2000.00    Composition: 45% Coal, 45% Copper, 10% Iron', door: doors[4]}
     ];
     
     upgradeDetails = [
@@ -142,10 +228,12 @@ function setup() {
     EMine.setRightRoom(FMine);
     FMine.setLeftRoom(EMine);
     
-    prisoner = new Prisoner();
     currentMine = AMine;
     
     loadState();
+    
+    console.log('game loaded');
+    socket.emit('gameLoaded');
 }
 
 function draw() {
@@ -160,22 +248,41 @@ function draw() {
     textSize(20);
     textAlign(LEFT, BASELINE);
     text("$ " + money.toFixed(2), 90, 67);
-    
+    text("Players Online: " + playerCount, 90, 92);
+
     if (currentMine.name != "Shop") {
         for (var i = 0; i < inventory.length; i++) {
             //this.inventory[i].display();
         }  
     }
-    
-    AMine.checkReset();
-    BMine.checkReset();
-    CMine.checkReset();
-    DMine.checkReset();
-    EMine.checkReset();
-    FMine.checkReset();
-    
-    prisoner.display();
-    prisoner.update();
+
+    for (var i = 0; i < otherPlayers.length; i++) {
+        if (otherPlayers[i].mine == currentMine.name) {
+            noStroke();
+            fill(otherPlayers[i].color); // custom player color
+            rect(otherPlayers[i].x, otherPlayers[i].y + prisoner.getHeight()/3, prisoner.getWidth(), 2*prisoner.getHeight()/3);
+            fill('#FFE0C4');
+            rect(otherPlayers[i].x, otherPlayers[i].y, prisoner.getWidth(), prisoner.getHeight()/3);
+            var pickaxe = upgradeDetails[0].progression[otherPlayers[i].pickaxe].sprite;
+            if (pickaxe != null) {
+                push();
+                if (otherPlayers[i].direction == "right") {
+                    translate(otherPlayers[i].x + 30, otherPlayers[i].y + 5);
+                    rotate(PI/4);
+                } else {
+                    translate(otherPlayers[i].x - 30, otherPlayers[i].y + 34);
+                    rotate(-PI/4);
+                }
+                image(pickaxe, 0, 0, TILESIZE, TILESIZE);
+                pop();
+            }
+        }
+    }
+
+    if (prisoner != null) {
+        prisoner.display();
+        prisoner.update();
+    }
     
     fill(255);
     lastFrames.push(frameRate());
@@ -195,24 +302,12 @@ function saveState() {
     localStorage.setItem('pickaxe', JSON.stringify(upgradeDetails[0].current));
     localStorage.setItem('doors', JSON.stringify(upgradeDetails[1].current));
     localStorage.setItem('currentMine', JSON.stringify(currentMine.name));
-    localStorage.setItem('ATiles', JSON.stringify(AMine.tiles));
-    //console.log(AMine.lastReset);
-    localStorage.setItem('AReset', JSON.stringify(AMine.lastReset));
-    localStorage.setItem('BTiles', JSON.stringify(BMine.tiles));
-    localStorage.setItem('BReset', JSON.stringify(BMine.lastReset));
-    localStorage.setItem('CTiles', JSON.stringify(CMine.tiles));
-    localStorage.setItem('CReset', JSON.stringify(CMine.lastReset));
-    localStorage.setItem('DTiles', JSON.stringify(DMine.tiles));
-    localStorage.setItem('DReset', JSON.stringify(DMine.lastReset));
-    localStorage.setItem('ETiles', JSON.stringify(EMine.tiles));
-    localStorage.setItem('EReset', JSON.stringify(EMine.lastReset));
-    localStorage.setItem('FTiles', JSON.stringify(FMine.tiles));
-    localStorage.setItem('FReset', JSON.stringify(FMine.lastReset));
     localStorage.setItem('sellQuantity', JSON.stringify(sellQuantity));
     localStorage.setItem('dirtCount', JSON.stringify(tileDetails[0].count));
     localStorage.setItem('stoneCount', JSON.stringify(tileDetails[1].count));
     localStorage.setItem('coalCount', JSON.stringify(tileDetails[2].count));
-    localStorage.setItem('ironCount', JSON.stringify(tileDetails[3].count));
+    localStorage.setItem('copperCount', JSON.stringify(tileDetails[3].count));
+    localStorage.setItem('ironCount', JSON.stringify(tileDetails[4].count));
 }
 
 function loadState() {
@@ -255,54 +350,6 @@ function loadState() {
             currentMine = AMine;
             break;
     }
-    if (JSON.parse(localStorage.getItem('ATiles')) != null) {
-        var tmpTiles = JSON.parse(localStorage.getItem('ATiles'));
-        for (var i = 0; i < AMine.tiles.length; i++) {
-            AMine.tiles[i].setID(tmpTiles[i].id);
-            AMine.tiles[i].intact = tmpTiles[i].intact;
-        }
-    }
-    if (JSON.parse(localStorage.getItem('AReset')) != null) AMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('AReset')));
-    if (JSON.parse(localStorage.getItem('BTiles')) != null) {
-        var tmpTiles = JSON.parse(localStorage.getItem('BTiles'));
-        for (var i = 0; i < BMine.tiles.length; i++) {
-            BMine.tiles[i].setID(tmpTiles[i].id);
-            BMine.tiles[i].intact = tmpTiles[i].intact;
-        }
-    }
-    if (JSON.parse(localStorage.getItem('BReset')) != null) BMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('BReset')));
-    if (JSON.parse(localStorage.getItem('CTiles')) != null) {
-        var tmpTiles = JSON.parse(localStorage.getItem('CTiles'));
-        for (var i = 0; i < CMine.tiles.length; i++) {
-            CMine.tiles[i].setID(tmpTiles[i].id);
-            CMine.tiles[i].intact = tmpTiles[i].intact;
-        }
-    }
-    if (JSON.parse(localStorage.getItem('CReset')) != null) CMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('CReset')));
-    if (JSON.parse(localStorage.getItem('DTiles')) != null) {
-        var tmpTiles = JSON.parse(localStorage.getItem('DTiles'));
-        for (var i = 0; i < DMine.tiles.length; i++) {
-            DMine.tiles[i].setID(tmpTiles[i].id);
-            DMine.tiles[i].intact = tmpTiles[i].intact;
-        }
-    }
-    if (JSON.parse(localStorage.getItem('DReset')) != null) DMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('DReset')));
-    if (JSON.parse(localStorage.getItem('ETiles')) != null) {
-        var tmpTiles = JSON.parse(localStorage.getItem('ETiles'));
-        for (var i = 0; i < EMine.tiles.length; i++) {
-            EMine.tiles[i].setID(tmpTiles[i].id);
-            EMine.tiles[i].intact = tmpTiles[i].intact;
-        }
-    }
-    if (JSON.parse(localStorage.getItem('EReset')) != null) EMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('EReset')));
-    if (JSON.parse(localStorage.getItem('FTiles')) != null) {
-        var tmpTiles = JSON.parse(localStorage.getItem('FTiles'));
-        for (var i = 0; i < FMine.tiles.length; i++) {
-            FMine.tiles[i].setID(tmpTiles[i].id);
-            FMine.tiles[i].intact = tmpTiles[i].intact;
-        }
-    }
-    if (JSON.parse(localStorage.getItem('FReset')) != null) FMine.lastReset = parseFloat(JSON.parse(localStorage.getItem('FReset')));
     if (JSON.parse(localStorage.getItem('sellQuantity')) != null) {
         if (JSON.parse(localStorage.getItem('sellQuantity')) == "All") sellQuantity = "All";
         else sellQuantity = parseInt(JSON.parse(localStorage.getItem('sellQuantity')));
@@ -346,4 +393,21 @@ function mouseDragged() {
             currentlyBreaking = lastSelectedTile;
         }
     }
+}
+
+function updateOtherPlayerLocation(data) {
+    //console.log('receiving data' + data);
+    var foundPlayer = false;
+    for (var i = 0; i < otherPlayers.length; i++) {
+        if (otherPlayers[i].id == data.id) {
+            otherPlayers[i] = data;  
+            foundPlayer = true;
+            break;
+        }
+    }
+    if (!foundPlayer) otherPlayers.push(data);
+}
+
+function fetchPlayerLocations() {
+    prisoner.emitLocation();
 }

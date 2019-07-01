@@ -1,7 +1,8 @@
 function Prisoner() {
     var pWidth = TILESIZE * .7;
     var pHeight = (2*TILESIZE) * (5/6);
-    
+    this.playerColor = '#ffffff';
+
     var loc = createVector(width/2 - TILESIZE/2, 280 - pHeight);
     var vel = createVector(0, 0);
     var horizontalAcceleration = .5;
@@ -17,9 +18,9 @@ function Prisoner() {
   
     this.display = function() {
         noStroke();
-        fill(250, 164, 78); // orange
-        rect(loc.x, loc.y, pWidth, pHeight);
-        fill('#FFE0C4');
+        fill(this.playerColor); // shirt color
+        rect(loc.x, loc.y  + pHeight/3, pWidth, 2*pHeight/3);
+        fill('#FFE0C4'); // skin color
         rect(loc.x, loc.y, pWidth, pHeight/3);
         var pickaxe = upgradeDetails[0].progression[upgradeDetails[0].current].sprite;
         if (pickaxe != null) {
@@ -240,7 +241,7 @@ function Prisoner() {
         // SellBlock Collisions
         for (var i = 0; i < currentMine.sellBlocks.length; i++) {
             var sellBlock = currentMine.sellBlocks[i];
-            if (sellBlock.minimumMineMet() && dist(loc.x, loc.y, sellBlock.getX(), sellBlock.getY()) < 100) {
+            if (dist(loc.x, loc.y, sellBlock.getX(), sellBlock.getY()) < 100) {
                 // Right Wall
                 if (loc.x + vel.x < sellBlock.getX() + TILESIZE && loc.x + vel.x > sellBlock.getX() && loc.y + pHeight > sellBlock.getY() && loc.y < sellBlock.getY() + TILESIZE) {
                     loc.x = sellBlock.getX() + TILESIZE;
@@ -280,7 +281,7 @@ function Prisoner() {
         // Upgrade Block Collisions
         for (var i = 0; currentMine.upgradeBlocks != null && i < currentMine.upgradeBlocks.length; i++) {
             var upgradeBlock = currentMine.upgradeBlocks[i];
-            if (upgradeBlock.exists() && dist(loc.x, loc.y, upgradeBlock.getX(), upgradeBlock.getY()) < 100) {
+            if (dist(loc.x, loc.y, upgradeBlock.getX(), upgradeBlock.getY()) < 100) {
                 // Right Wall
                 if (loc.x + vel.x < upgradeBlock.getX() + TILESIZE && loc.x + vel.x > upgradeBlock.getX() && loc.y + pHeight > upgradeBlock.getY() && loc.y < upgradeBlock.getY() + TILESIZE) {
                     loc.x = upgradeBlock.getX() + TILESIZE;
@@ -322,6 +323,9 @@ function Prisoner() {
         else inAir = false;
         loc.x += vel.x;
         loc.y += vel.y;
+        if (Math.abs(vel.x) > 0.1 || Math.abs(vel.y) > 0.1) {
+            this.emitLocation();
+        }
     }
     
     this.getX = function() {
@@ -350,5 +354,19 @@ function Prisoner() {
     
     this.resetLoc = function() {
         loc = createVector(width/2 - TILESIZE/2, 280 - pHeight); 
+        this.emitLocation();
+    }
+
+    this.emitLocation = function() {
+        var data = {
+            x: loc.x,
+            y: loc.y,
+            color: this.playerColor,
+            mine: currentMine.name,
+            pickaxe: upgradeDetails[0].current,
+            direction: direction,
+            id: -1
+        };
+        socket.emit('playerMoved', data);
     }
 }

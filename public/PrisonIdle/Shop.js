@@ -26,6 +26,12 @@ function Shop() {
      this.sellBlocks.push(new SellBlock(240, 160, 2));
      this.sellBlocks.push(new SellBlock(320, 160, 3));
      this.sellBlocks.push(new SellBlock(400, 160, 4));
+     this.sellBlocks.push(new SellBlock(480, 160, 5));
+     this.sellBlocks.push(new SellBlock(560, 160, 6));
+     this.sellBlocks.push(new SellBlock(640, 160, 7));
+     this.sellBlocks.push(new SellBlock(720, 160, 8));
+     this.sellBlocks.push(new SellBlock(800, 160, 9));
+     this.sellBlocks.push(new SellBlock(880, 160, 10));
      this.sellBlocks.push(new SellBlock(960, 160, -1));
      
      this.upgradeBlocks.push(new UpgradeBlock(80, 560, 0));
