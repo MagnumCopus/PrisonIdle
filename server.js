@@ -204,8 +204,8 @@ function newConnection(socket) {
 		var connectionData = {
 			color: playerColors[(nextColorIndex++) % playerColors.length],
 			onlinePlayers: onlinePlayers,
-			mines: [];
-		}
+			mines: []
+		};
 		for (var i = 0; i < mineData.length; i++) {
 			connectionData.mines.push({
 				name: mineData[i].name,

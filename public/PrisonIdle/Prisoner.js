@@ -1,5 +1,5 @@
 function Prisoner() {
-    var pWidth = TILESIZE * .7;
+    var pWidth = 32;
     var pHeight = (2*TILESIZE) * (5/6);
     this.playerColor = '#ffffff';
 
@@ -354,7 +354,7 @@ function Prisoner() {
     
     this.resetLoc = function() {
         if (currentMine.name == mines[0].name) {
-            loc = createVector(1126, 280 - pHeight); 
+            loc = createVector(1166, 280 - pHeight); 
             direction = 'left';
         } else {
             loc = createVector(126, 280 - pHeight); 

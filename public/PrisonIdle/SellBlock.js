@@ -11,10 +11,26 @@ function SellBlock(xLoc, yLoc, id) {
             else fill(80);
             if (id >= 0 && tileDetails[id].sprite != null) image(tileDetails[id].sprite, loc.x, loc.y, TILESIZE, TILESIZE);
             else rect(loc.x, loc.y, TILESIZE, TILESIZE);
+            fill(0, 0, 0, 65);
+            rect(loc.x, loc.y, TILESIZE, TILESIZE);
             fill(255);
-            textSize(20);
+            textSize(15);
             textAlign(CENTER, CENTER);
-            if (id >= 0) text(tileDetails[id].count, loc.x, loc.y, TILESIZE*1.12, TILESIZE);
+            if (id >= 0) {
+                var count = tileDetails[id].count;
+                if (count > 999 && count < 10000) {
+                    count = (count/1000).toFixed(1) + "K";
+                } else if (count > 9999 && count < 1000000) {
+                    count = (count/1000).toFixed(0) + "K";
+                } else if (count > 999999 && count < 950000000) {
+                    count = (count/1000000).toFixed(0) + "M";
+                } else if (count > 949999999 && count < 1000000000) {
+                    count = "999M";
+                } else if (count > 999999999) {
+                    count = "no u";
+                }
+                text(count, loc.x, loc.y, TILESIZE*1.12, TILESIZE);
+            }
             else text(sellQuantity, loc.x, loc.y, TILESIZE*1.12, TILESIZE);
         } else {
             noStroke();
@@ -33,20 +49,20 @@ function SellBlock(xLoc, yLoc, id) {
     
     this.displayInfo = function() {
         if (id >= 0 && tileDetails[id] && this.minimumMineMet()) {
-            shop.infoText = tileDetails[id].info;
+            mines[0].infoText = tileDetails[id].info;
             this.displayingInfo = true;
         } else if (id == -1) {
-            shop.infoText = "Change the amount of minerals bulk sold to the store";
+            mines[0].infoText = "Change the amount of minerals bulk sold to the store";
             this.displayingInfo = true;
         } else {
-            shop.infoText = "???";
+            mines[0].infoText = "???";
             this.displayingInfo = true;
         }
     }
     
     this.stopDisplaying = function() {
         if (this.displayingInfo) {
-            shop.infoText = "";
+            mines[0].infoText = "";
             this.displayingInfo = false;
         }
     }

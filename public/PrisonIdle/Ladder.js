@@ -1,6 +1,6 @@
 function Ladder(xLoc, yLoc, wWidth, wHeight, direction) {
     var loc = createVector(xLoc, yLoc);
-    
+
     this.display = function() {
         noStroke();
         fill('#953403');
