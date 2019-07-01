@@ -88,32 +88,32 @@ function AMine() {
      }
      
      this.resetMine = function(resetLength, tiles) {
-         if (prisoner != null && currentMine.name == this.name) prisoner.setY(280 - prisoner.getHeight());
-         //this.resetTiles();
-         for (var y = 0; y < this.tileHeight; y++) {
-            for (var x = 0; x < this.tileWidth; x++) {
-                var index = (y * this.tileWidth) + x;
-                for (var j = 0; j < tileDetails.length; j++) {
-                    if (tileDetails[j].name == tiles[index].name) {
-                        if (index >= this.tiles.length) {
-                            this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, index, j));
-                        }
-                        else {
-                            this.tiles[index].restore();
-                            this.tiles[index].setID(tileDetails[j].id);
-                        }
-                        this.tiles[index].setBreakable(false);
-                        this.tiles[index].intact = tiles[index].intact;
-                        break;
+        if (prisoner != null && currentMine.name == this.name) prisoner.setY(280 - prisoner.getHeight());
+        //this.resetTiles();
+        for (var y = 0; y < this.tileHeight; y++) {
+        for (var x = 0; x < this.tileWidth; x++) {
+            var index = (y * this.tileWidth) + x;
+            for (var j = 0; j < tileDetails.length; j++) {
+                if (tileDetails[j].name == tiles[index].name) {
+                    if (index >= this.tiles.length) {
+                        this.tiles.push(new Tile(200 + x * 40, 280 + y * 40, index, j));
                     }
+                    else {
+                        this.tiles[index].restore();
+                        this.tiles[index].setID(tileDetails[j].id);
+                    }
+                    this.tiles[index].setBreakable(false);
+                    this.tiles[index].intact = tiles[index].intact;
+                    break;
                 }
             }
-         }  
-         currentlyBreaking = -1;
-         saveState();
-         this.lastReset = new Date().getTime();
-         console.log(resetLength);
-         this.resetLength = resetLength;
+        }
+        }  
+        currentlyBreaking = -1;
+        saveState();
+        this.lastReset = new Date().getTime();
+        console.log(resetLength);
+        this.resetLength = resetLength;
      }
      
      this.setLeftRoom = function(leftRoom) {

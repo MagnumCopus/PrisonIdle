@@ -353,7 +353,15 @@ function Prisoner() {
     }
     
     this.resetLoc = function() {
-        loc = createVector(width/2 - TILESIZE/2, 280 - pHeight); 
+        if (currentMine.name == shop.name) {
+            loc = createVector(1126, 280 - pHeight); 
+            direction = 'left';
+            loc = createVector(126, 280 - pHeight); 
+            direction = 'right';
+        } else {
+            loc = createVector(126, 280 - pHeight); 
+            direction = 'right';
+        }
         this.emitLocation();
     }
 

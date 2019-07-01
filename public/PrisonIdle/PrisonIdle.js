@@ -20,7 +20,7 @@ var DMine;
 var EMine;
 var FMine;
 
-var mines = [AMine];
+var mines = [];
 
 var tileDetails;
 var pickaxeDetails;
@@ -213,6 +213,13 @@ function setup() {
     DMine = new DMine();
     EMine = new EMine();
     FMine = new FMine();
+
+    mines.push(new AMine());
+    mines.push(new BMine());
+    mines.push(new CMine());
+    mines.push(new DMine());
+    mines.push(new EMine());
+    mines.push(new FMine());
     
     //console.log(shop);
     shop.setRightRoom(AMine);
@@ -325,25 +332,25 @@ function loadState() {
     }
     if (JSON.parse(localStorage.getItem('currentMine')) != null) var mineName = JSON.parse(localStorage.getItem('currentMine'));
     switch(mineName) {
-        case "Shop":
+        case shop.name:
             currentMine = shop;
             break;
-        case "A":
+        case AMine.name:
             currentMine = AMine;
             break;
-        case "B":
+        case BMine.name:
             currentMine = BMine;
             break;
-        case "C":
+        case CMine.name:
             currentMine = CMine;
             break;
-        case "D":
+        case DMine.name:
             currentMine = DMine;
             break;
-        case "E":
+        case EMine.name:
             currentMine = EMine;
             break;
-        case "F":
+        case FMine.name:
             currentMine = FMine;
             break;
         default:
