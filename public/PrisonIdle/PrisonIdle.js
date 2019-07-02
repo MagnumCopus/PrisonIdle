@@ -67,57 +67,19 @@ function preload() {
             }
         }
 
-        prisoner = new Prisoner(data.id);
+        prisoner = new Prisoner();
         prisoner.resetLoc();
         prisoner.playerColor = data.color;
         prisoner.emitLocation();
     });
 
-    socket.on('playerMoved', function (data) {
-        var foundPlayer = false;
-        console.log(data);
-        for (var i = 0; i < otherPlayers.length; i++) {
-            if (otherPlayers[i].session_id == data.id) {
-                otherPlayers[i].setData(data);
-                foundPlayer = true;
-                console.log('updated player location: ' + data.id);
-                console.log(data);
-                break;
-            }
-        }
-        if (!foundPlayer) {
-            console.log('player connected' + data.id);
-            otherPlayers.push(new Prisoner(data.id));
-            otherPlayers[otherPlayers.length-1].setData(data);
-            playerCount = data.onlinePlayers;
-            prisoner.emitLocation();
-        }
+    socket.on('playerConnected', function (data) {
+        console.log('new player connected');
+        playerCount = data.onlinePlayers;
+        prisoner.emitLocation();
     });
 
-    socket.on('inputChanged', function (data) {
-        for (var i = 0; i < otherPlayers.length; i++) {
-            if (otherPlayers[i].session_id == data.id) {
-                switch(data.input) {
-                    case 'left':
-                        otherPlayers[i].holdingLeft = (data.status == 'down') ? true : false;
-                        break;
-                    case 'right':
-                        otherPlayers[i].holdingRight = (data.status == 'down') ? true : false;
-                        break;
-                    case 'up':
-                        otherPlayers[i].holdingUp = (data.status == 'down') ? true : false;
-                        break;
-                    case 'down':
-                        otherPlayers[i].holdingDown = (data.status == 'down') ? true : false;
-                        break;
-                    default:
-                        console.log('unrecognized data input: ' + data.input);
-                }
-                console.log(otherPlayers[0].session_id + ' ' + data.input + ' input changed');
-                break;
-            }
-        }
-    });
+    socket.on('playerMoved', updateOtherPlayerLocation);
 
     socket.on('breakBlock', function (data) {
         for (var j = 0; j < mines.length; j++) {
@@ -125,36 +87,32 @@ function preload() {
                 mines[j].tiles[data.index].intact = false;
             }
         }
-        console.log('block broken in mine' + data.mine + ' at ' + data.index);
     });
 
     socket.on('resetMine', function (data) {
-        for (var i = 0; i < data.mines.length; i++) {
-            for (var j = 0; j < mines.length; j++) {
-                if (data.mines[i].name == mines[j].name) {
-                    mines[j].resetMine(data.resetLength, data.tiles);
-                }
+        for (var j = 0; j < mines.length; j++) {
+            if (mines[j].name == data.mine) {
+                mines[j].resetMine(data.resetLength, data.tiles);
             }
         }
-        console.log('reset ' + data.mine);
     });
 
     socket.on('playerDisconnected', function (data) {
         var newPlayerList = [];
         for (var i = 0; i < otherPlayers.length; i++) {
             console.log(data.id);
-            if (otherPlayers[i].session_id != data.id) {
+            if (otherPlayers[i].id != data.id) {
                 newPlayerList.push(otherPlayers[i]);
             }
         }
         otherPlayers = newPlayerList;
         playerCount = data.playerCount;
-        console.log('player disconnected' + data.id);
     });
 }
 
 function setup() {
     createCanvas(1280, 720);
+    //frameRate(30);
 
     textFont(font);
     wallSprite = loadImage('Resources/wall.png');
@@ -273,10 +231,31 @@ function draw() {
     text("Players Online: " + playerCount, 90, 92);
 
     for (var i = 0; i < otherPlayers.length; i++) {
-        if (otherPlayers[i].current_mine == currentMine.name) {
-            //console.log('player updated');
-            otherPlayers[i].update();
-            otherPlayers[i].display();
+        if (otherPlayers[i].mine == currentMine.name) {
+            noStroke();
+            if (otherPlayers[i]['usedLoc'] == true && otherPlayers[i]['usedVel'] == false) {
+                otherPlayers[i].x += otherPlayers[i].velX;
+                otherPlayers[i].y += otherPlayers[i].velY;
+                otherPlayers[i]['usedVel'] = true;
+            } 
+            fill(otherPlayers[i].color); // custom player color
+            rect(otherPlayers[i].x, otherPlayers[i].y + prisoner.getHeight()/3, prisoner.getWidth(), 2*prisoner.getHeight()/3);
+            fill('#FFE0C4');
+            rect(otherPlayers[i].x, otherPlayers[i].y, prisoner.getWidth(), prisoner.getHeight()/3);
+            var pickaxe = upgradeDetails[0].progression[otherPlayers[i].pickaxe].sprite;
+            if (pickaxe != null) {
+                push();
+                if (otherPlayers[i].direction == "right") {
+                    translate(otherPlayers[i].x + 30, otherPlayers[i].y + 5);
+                    rotate(PI/4);
+                } else {
+                    translate(otherPlayers[i].x - 30, otherPlayers[i].y + 34);
+                    rotate(-PI/4);
+                }
+                image(pickaxe, 0, 0, TILESIZE, TILESIZE);
+                pop();
+            }
+            otherPlayers[i]['usedLoc'] = true;
         }
     }
 
@@ -373,6 +352,19 @@ function mouseDragged() {
             currentlyBreaking = lastSelectedTile;
         }
     }
+}
+
+function updateOtherPlayerLocation(data) {
+    //console.log('receiving data' + data);
+    var foundPlayer = false;
+    for (var i = 0; i < otherPlayers.length; i++) {
+        if (otherPlayers[i].id == data.id) {
+            otherPlayers[i] = data;  
+            foundPlayer = true;
+            break;
+        }
+    }
+    if (!foundPlayer) otherPlayers.push(data);
 }
 
 function fetchPlayerLocations() {

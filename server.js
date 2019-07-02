@@ -2,7 +2,7 @@
 var express = require('express');
 
 var app = express();
-var server = app.listen(process.env.PORT || 8240);
+var server = app.listen(process.env.PORT || 5000);
 
 app.use(express.static('public'));
 
@@ -202,11 +202,10 @@ function newConnection(socket) {
 	socket.on('gameLoaded', function () {
 		var d = new Date().getTime();
 		var connectionData = {
-			id: socket.id,
 			color: playerColors[(nextColorIndex++) % playerColors.length],
 			onlinePlayers: onlinePlayers,
-			mines: [];
-		}
+			mines: []
+		};
 		for (var i = 0; i < mineData.length; i++) {
 			connectionData.mines.push({
 				name: mineData[i].name,
@@ -215,21 +214,19 @@ function newConnection(socket) {
 				tiles: mineData[i].tiles
 			});
 		}
-		console.log(connectionData);
-		socket.emit('connectInfo', connectionData);
+		socket.emit('connectInfo', connectionData)
+		//console.log(connectionData);
+
+		var newPlayerData = {
+			onlinePlayers: onlinePlayers
+		};
+		socket.broadcast.emit('playerConnected', newPlayerData)
 	});
 
 	socket.on('playerMoved', function (data) {
 		data.id = socket.id;
-		data['onlinePlayers'] = onlinePlayers;
 		socket.broadcast.emit('playerMoved', data);
 		//console.log(data);
-	});
-
-	socket.on('inputChanged', function (data) {
-		data['id'] = socket.id;
-		socket.broadcast.emit('inputChanged', data);
-		//console.log('inputChanged: ' + data);
 	});
 
 	socket.on('breakBlock', function (data) {

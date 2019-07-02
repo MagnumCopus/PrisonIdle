@@ -1,5 +1,4 @@
-
-function Prisoner(session_id) {
+function Prisoner() {
     var pWidth = 32;
     var pHeight = (2*TILESIZE) * (5/6);
     this.playerColor = '#ffffff';
@@ -17,16 +16,6 @@ function Prisoner(session_id) {
     var breakingRight = false;
     var breakingDown = false;
   
-    this.session_id = session_id;
-    this.current_mine = currentMine.name;
-    this.pickaxeLvl = 0;
-    this.holdingLeft = false;
-    this.holdingRight = false;
-    this.holdingUp = false;
-    this.holdingDown = false;
-    var inputCount = 0;
-    //var timer = setInterval(this.emitLocation, 1000);
-
     this.display = function() {
         noStroke();
         fill(this.playerColor); // shirt color
@@ -46,124 +35,53 @@ function Prisoner(session_id) {
             image(pickaxe, 0, 0, TILESIZE, TILESIZE);
             pop();
         }
-        if (frameCount % 30 == 0 && session_id == prisoner.session_id) this.emitLocation(); 
     }
     
     this.update = function() {
         var horizontalKeyPressed = false;
         var onFloor = false;
         
-        if (this.isLeftDown()) {
-            if (!inAir) { vel.x -= horizontalAcceleration; }
-            else { vel.x -= horizontalAcceleration/2; }
+        if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
+            if (!inAir) { vel.x -= horizontalAcceleration * 58 * (1 / frameRate()); }
+            else { vel.x -= horizontalAcceleration/2 * 58 * (1 / frameRate()); }
             horizontalKeyPressed = true;
             direction = "left";
-            if (!this.holdingLeft) {
-                this.holdingLeft = true;
-                var data = {
-                    input: 'left',
-                    status: 'down'
-                };
-                socket.emit('inputChanged', data)
-            }
-        } else if (this.holdingLeft) {
-            this.holdingLeft = false;
-            inputCount++;
-            var data = {
-                input: 'left',
-                status: 'up'
-            };
-            socket.emit('inputChanged', data)
         }
-
-        if (this.isRightDown()) {
-            if (!inAir) vel.x += horizontalAcceleration;
-            else vel.x += horizontalAcceleration/2;
+        if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
+            if (!inAir) vel.x += horizontalAcceleration * 58 * (1 / frameRate());
+            else vel.x += horizontalAcceleration/2 * 58 * (1 / frameRate());
             horizontalKeyPressed = true;
             direction = "right";
-            if (!this.holdingRight) {
-                this.holdingRight = true;
-                var data = {
-                    input: 'right',
-                    status: 'down'
-                };
-                socket.emit('inputChanged', data)
-            }
-        } else if (this.holdingRight) {
-            this.holdingRight = false;
-            inputCount++;
-            var data = {
-                input: 'right',
-                status: 'up'
-            };
-            socket.emit('inputChanged', data)
         }
-
-        if (this.isUpDown()) {
+        if (keyIsDown(32) || keyIsDown(UP_ARROW) || keyIsDown(87)) {
             if (!inAir) {
                 vel.y -= jumpAcceleration;
                 jumpReleased = false;
             }
-            if (!this.holdingUp) {
-                this.holdingUp = true;
-                var data = {
-                    input: 'up',
-                    status: 'down'
-                };
-                socket.emit('inputChanged', data)
-            }
-        } else if (this.holdingUp) {
-            this.holdingUp = false;
-            inputCount++;
-            var data = {
-                input: 'up',
-                status: 'up'
-            };
-            socket.emit('inputChanged', data)
-            jumpReleased = true; 
-        }
-
-        if (this.isDownDown()) {
-            if (!this.holdingDown) {
-                this.holdingDown = true;
-                var data = {
-                    input: 'down',
-                    status: 'down'
-                };
-                socket.emit('inputChanged', data)
-            }
-        } else if (this.holdingDown) {
-            this.holdingDown = false;
-            inputCount++;
-            var data = {
-                input: 'down',
-                status: 'up'
-            };
-            socket.emit('inputChanged', data)
+        } else {
+            jumpReleased = true;   
         }
         
-        vel.y += GRAVITY;
+        vel.y += GRAVITY * 58 * (1 / frameRate());
         if (vel.x > maxHorizontalSpeed) vel.x = maxHorizontalSpeed;
         if (vel.x < -maxHorizontalSpeed) vel.x = -maxHorizontalSpeed;
         
         // Check window borders
-        if (session_id == prisoner.session_id && loc.x + pWidth < -5) {
+        if (loc.x + pWidth < -5) {
             currentMine = currentMine.leftRoom;
             loc.x = width + 5;
-            //this.emitLocation();
             saveState();
         }
-        if (session_id == prisoner.session_id && loc.y + pHeight < -5) {
-            //this.emitLocation();
+        if (loc.y + pHeight < -5) {
+          
         }
-        if (session_id == prisoner.session_id && loc.x > width + 5) {
+        if (loc.x > width + 5) {
             currentMine = currentMine.rightRoom;
             loc.x = -pWidth - 5;
-            //this.emitLocation();
             saveState();
         }
-        if (session_id == prisoner.session_id && loc.y > height + 5) {
-            //this.emitLocation();
+        if (loc.y > height + 5) {
+            
         }
         
         // Ladder Collisions
@@ -174,9 +92,9 @@ function Prisoner(session_id) {
                 if (loc.y + vel.y + pHeight > ladder.getY() && loc.y + pHeight <= ladder.getY() + ladder.getHeight() && loc.x + pWidth > ladder.getX() && loc.x < ladder.getX() + ladder.getWidth()) {
                     if (!horizontalKeyPressed) vel.x = vel.x/1.3;
                     vel.y = 0;
-                    if (this.holdingUp) {
+                    if (keyIsDown(32) || keyIsDown(UP_ARROW) || keyIsDown(87)) {
                         vel.y = -4.5; 
-                    } else if (this.holdingDown) {
+                    } else if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
                         vel.y = 6; 
                     }
                     inAir = true;
@@ -253,54 +171,10 @@ function Prisoner(session_id) {
         for (var i = 0; i < currentMine.tiles.length; i++) {
             var tile = currentMine.tiles[i];
             if (tile.getIntact() && dist(loc.x, loc.y, tile.getX(), tile.getY()) < 100) {
-                // Right Wall
-                if (loc.x + vel.x < tile.getX() + TILESIZE && loc.x + vel.x > tile.getX() && loc.y + pHeight > tile.getY() && loc.y < tile.getY() + TILESIZE) {
-                    console.log(onFloor);
-                    if (this.holdingLeft) {
-                        tile.destroy(session_id);
-                        breakingLeft = true;
-                    }
-                    loc.x = tile.getX() + TILESIZE;
-                    vel.x = 0;
-                    //console.log("1");
-                }
-                else if (breakingLeft && currentlyBreaking == tile.getIndex()) {
-                    tile.restore();
-                    breakingLeft = false;  
-                }
-                if (breakingLeft && !this.holdingLeft && currentlyBreaking == tile.getIndex()) {
-                    tile.restore();
-                    breakingLeft = false;   
-                }
-                //console.log(currentlyBreaking);
-                // Ceiling
-                if (loc.y + vel.y < tile.getY() + TILESIZE && loc.y + vel.y > tile.getY() && (loc.x > tile.getX() - pWidth && loc.x < tile.getX() + TILESIZE)) {
-                    loc.y = tile.getY() + TILESIZE;
-                    vel.y = 0;
-                    //console.log("2");
-                }
-                // Left Wall
-                if (loc.x + vel.x + pWidth > tile.getX() && loc.x + vel.x < tile.getX() && loc.y + pHeight > tile.getY() && loc.y < tile.getY() + TILESIZE) {
-                    if (this.holdingRight) {
-                        tile.destroy(session_id);
-                        breakingRight = true;   
-                    }
-                    loc.x = tile.getX() - pWidth;
-                    vel.x = 0;
-                    //console.log("3");
-                }
-                else if (breakingRight && currentlyBreaking == tile.getIndex()) {
-                    tile.restore();
-                    breakingRight = false;  
-                }
-                if (breakingRight && !this.holdingRight && currentlyBreaking == tile.getIndex()) {
-                    tile.restore();
-                    breakingRight = false;   
-                }
                 // Floor
                 if (loc.y + vel.y + pHeight > tile.getY() && loc.y + vel.y < tile.getY() && (loc.x > tile.getX() - pWidth && loc.x < tile.getX() + TILESIZE)) {
-                    if (this.holdingDown) {
-                        tile.destroy(session_id);
+                    if (keyIsDown(DOWN_ARROW) || keyIsDown(83)) {
+                        tile.destroy();
                         breakingDown = true;
                     }
                     loc.y = tile.getY() - pHeight;
@@ -313,9 +187,52 @@ function Prisoner(session_id) {
                     tile.restore();
                     breakingDown = false;  
                 }
-                if (breakingDown && !this.holdingDown && currentlyBreaking == tile.getIndex()) {
+                if (breakingDown && !(keyIsDown(DOWN_ARROW) || keyIsDown(83)) && currentlyBreaking == tile.getIndex()) {
                     tile.restore();
                     breakingDown = false;   
+                }
+                // Ceiling
+                if (loc.y + vel.y < tile.getY() + TILESIZE && loc.y + vel.y > tile.getY() && (loc.x > tile.getX() - pWidth && loc.x < tile.getX() + TILESIZE)) {
+                    loc.y = tile.getY() + TILESIZE;
+                    vel.y = 0;
+                    //console.log("2");
+                }
+                // Right Wall
+                if (loc.x + vel.x < tile.getX() + TILESIZE && loc.x + vel.x > tile.getX() && loc.y + pHeight > tile.getY() && loc.y < tile.getY() + TILESIZE) {
+                    if (keyIsDown(LEFT_ARROW) || keyIsDown(65)) {
+                        tile.destroy();
+                        breakingLeft = true;
+                    }
+                    loc.x = tile.getX() + TILESIZE;
+                    vel.x = 0;
+                    //console.log("1");
+                }
+                else if (breakingLeft && currentlyBreaking == tile.getIndex()) {
+                    tile.restore();
+                    breakingLeft = false;  
+                }
+                if (breakingLeft && !(keyIsDown(LEFT_ARROW) || keyIsDown(65)) && currentlyBreaking == tile.getIndex()) {
+                    tile.restore();
+                    breakingLeft = false;   
+                }
+                //console.log(currentlyBreaking);
+                // Left Wall
+                if (loc.x + vel.x + pWidth > tile.getX() && loc.x + vel.x < tile.getX() && loc.y + pHeight > tile.getY() && loc.y < tile.getY() + TILESIZE) {
+                    if (keyIsDown(RIGHT_ARROW) || keyIsDown(68)) {
+                        tile.destroy();
+                        breakingRight = true;   
+                    }
+                    loc.x = tile.getX() - pWidth;
+                    vel.x = 0;
+                    //console.log("3");
+                }
+                else if (breakingRight && currentlyBreaking == tile.getIndex()) {
+                    tile.restore();
+                    breakingRight = false;  
+                }
+                if (breakingRight && !(keyIsDown(RIGHT_ARROW) || keyIsDown(68)) && currentlyBreaking == tile.getIndex()) {
+                    tile.restore();
+                    breakingRight = false;   
                 }
             }
         }
@@ -405,6 +322,9 @@ function Prisoner(session_id) {
         else inAir = false;
         loc.x += vel.x * 58 * (1 / frameRate());
         loc.y += vel.y * 58 * (1 / frameRate());
+        if (Math.abs(vel.x) > 0.1 || Math.abs(vel.y) > 0.1 && frameCount % 2 == 0) {
+            this.emitLocation();
+        }
     }
     
     this.getX = function() {
@@ -431,13 +351,9 @@ function Prisoner(session_id) {
         return pHeight;
     }
     
-    this.getDirection = function() {
-        return direction;
-    }
-
     this.resetLoc = function() {
         if (currentMine.name == mines[0].name) {
-            loc = createVector(1126, 280 - pHeight); 
+            loc = createVector(1166, 280 - pHeight); 
             direction = 'left';
         } else {
             loc = createVector(126, 280 - pHeight); 
@@ -447,54 +363,17 @@ function Prisoner(session_id) {
     }
 
     this.emitLocation = function() {
-        if (session_id == prisoner.session_id) {
-            console.log('emitting location');
-            var data = {
-                x: loc.x,
-                y: loc.y,
-                color: this.playerColor,
-                mine: currentMine.name,
-                pickaxe: upgradeDetails[0].current,
-                direction: direction,
-                id: -1
-            };
-            socket.emit('playerMoved', data);
-        }
-    }
-
-    this.setData = function(data) {
-        loc.x = data.x;
-        loc.y = data.y;
-        this.playerColor = data.color;
-        this.current_mine = data.mine;
-        this.pickaxeLvl = data.pickaxe;
-    }
-
-    this.isLeftDown = function() {
-        if ((session_id != prisoner.session_id && this.holdingLeft) || (session_id == prisoner.session_id && (keyIsDown(LEFT_ARROW) || keyIsDown(65)))) {
-            return true;
-        }
-        return false;
-    }
-
-    this.isRightDown = function() {
-        if ((session_id != prisoner.session_id && this.holdingRight) || (session_id == prisoner.session_id && (keyIsDown(RIGHT_ARROW) || keyIsDown(68)))) {
-            return true;
-        }
-        return false;
-    }
-
-    this.isUpDown = function() {
-        if ((session_id != prisoner.session_id && this.holdingUp) || (session_id == prisoner.session_id && (keyIsDown(UP_ARROW) || keyIsDown(87) || keyIsDown(32)))) {
-            return true;
-        }
-        return false;
-    }
-
-    this.isDownDown = function() {
-        if ((session_id != prisoner.session_id && this.holdingDown) || (session_id == prisoner.session_id && (keyIsDown(DOWN_ARROW) || keyIsDown(83)))) {
-            return true;
-        }
-        return false;
+        var data = {
+            x: loc.x,
+            y: loc.y,
+            velX: vel.x,
+            velY: vel.y,
+            color: this.playerColor,
+            mine: currentMine.name,
+            pickaxe: upgradeDetails[0].current,
+            direction: direction,
+            id: -1
+        };
+        socket.emit('playerMoved', data);
     }
 }
