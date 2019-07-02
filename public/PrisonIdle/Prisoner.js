@@ -402,8 +402,8 @@ function Prisoner(session_id) {
         //console.log("vel.x = " + vel.x + "   vel.y = " + vel.y);
         if (!onFloor) inAir = true;
         else inAir = false;
-        loc.x += vel.x;
-        loc.y += vel.y;
+        loc.x += vel.x * 58 * (1 / frameRate());
+        loc.y += vel.y * 58 * (1 / frameRate());
     }
     
     this.getX = function() {

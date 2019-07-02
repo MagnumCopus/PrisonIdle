@@ -119,6 +119,7 @@ function Tile(xLoc, yLoc, index, id) {
   }
   
   this.restore = function() {
+    console.log('restore');
     breaking = false;
     breakState = 0;
     breakStart = 0;
