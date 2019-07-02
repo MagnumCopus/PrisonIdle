@@ -202,6 +202,7 @@ function newConnection(socket) {
 	socket.on('gameLoaded', function () {
 		var d = new Date().getTime();
 		var connectionData = {
+			id: socket.id,
 			color: playerColors[(nextColorIndex++) % playerColors.length],
 			onlinePlayers: onlinePlayers,
 			mines: []
@@ -214,19 +215,21 @@ function newConnection(socket) {
 				tiles: mineData[i].tiles
 			});
 		}
-		socket.emit('connectInfo', connectionData)
-		//console.log(connectionData);
-
-		var newPlayerData = {
-			onlinePlayers: onlinePlayers
-		};
-		socket.broadcast.emit('playerConnected', newPlayerData)
+		console.log(connectionData);
+		socket.emit('connectInfo', connectionData);
 	});
 
 	socket.on('playerMoved', function (data) {
 		data.id = socket.id;
+		data['onlinePlayers'] = onlinePlayers;
 		socket.broadcast.emit('playerMoved', data);
 		//console.log(data);
+	});
+
+	socket.on('inputChanged', function (data) {
+		data['id'] = socket.id;
+		socket.broadcast.emit('inputChanged', data);
+		console.log('inputChanged: ' + data);
 	});
 
 	socket.on('breakBlock', function (data) {

@@ -11,7 +11,8 @@ function Tile(xLoc, yLoc, index, id) {
   var breakState = 0;
   var details = tileDetails[this.id];
   var breakTime = details.breakTime;
-  
+  var playerBreaking = 0;
+
   this.display = function() {
     if (this.intact) { 
       noStroke();
@@ -50,7 +51,7 @@ function Tile(xLoc, yLoc, index, id) {
   this.update = function() {
     if (this.intact && breaking) {
       breakState = millis() - breakStart;
-      if (breakState > (breakTime / miningSpeed)) {
+      if (playerBreaking == 0 && breakState > (breakTime / miningSpeed)) {
         this.intact = false;
         tileDetails[this.id].count++;
         currentlyBreaking = -1;
@@ -99,11 +100,12 @@ function Tile(xLoc, yLoc, index, id) {
     return mouseHovering; 
   }
   
-  this.destroy = function() {
+  this.destroy = function(player) {
     if (currentlyBreaking == -1 && !breaking && this.intact && breakable && inReach) {
       breaking = true;
       breakStart = millis();
       currentlyBreaking = index;
+      playerBreaking = player;
     }
   }
   
