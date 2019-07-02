@@ -2,7 +2,7 @@
 var express = require('express');
 
 var app = express();
-var server = app.listen(process.env.PORT || 5000);
+var server = app.listen(process.env.PORT || 8240);
 
 app.use(express.static('public'));
 
@@ -229,7 +229,7 @@ function newConnection(socket) {
 	socket.on('inputChanged', function (data) {
 		data['id'] = socket.id;
 		socket.broadcast.emit('inputChanged', data);
-		console.log('inputChanged: ' + data);
+		//console.log('inputChanged: ' + data);
 	});
 
 	socket.on('breakBlock', function (data) {

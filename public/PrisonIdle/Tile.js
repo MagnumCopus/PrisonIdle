@@ -38,7 +38,7 @@ function Tile(xLoc, yLoc, index, id) {
       //console.log(percentBroken);
       var animationIndex = percentBroken / 1.255 * 10;
       animationIndex = parseInt(map(animationIndex, 8, 0, 0, 8));
-      if (animationIndex != 0) {
+      if (animationIndex != 0 && animationIndex <= 8) {
           var aY = parseInt(animationIndex / 3);
           var aX = animationIndex % 3;
           //console.log(aX + " " + aY);
@@ -50,8 +50,9 @@ function Tile(xLoc, yLoc, index, id) {
   
   this.update = function() {
     if (this.intact && breaking) {
+      console.log(breakState);
       breakState = millis() - breakStart;
-      if (playerBreaking == 0 && breakState > (breakTime / miningSpeed)) {
+      if (playerBreaking == prisoner.session_id && breakState > (breakTime / miningSpeed)) {
         this.intact = false;
         tileDetails[this.id].count++;
         currentlyBreaking = -1;
@@ -77,12 +78,19 @@ function Tile(xLoc, yLoc, index, id) {
     }
     
     // Check if tile is in reach
-    if (prisoner != null) {
-        var pLoc = createVector(prisoner.getX() + prisoner.getWidth()/2, prisoner.getY() + prisoner.getHeight()/2);
-        if (dist(pLoc.x, pLoc.y, xLoc + TILESIZE/2, yLoc + TILESIZE/2) > 100) inReach = false;
-        else inReach = true;
-    } else {
-        inReach = false;
+    inReach = false;
+    var pLoc = createVector(prisoner.getX() + prisoner.getWidth()/2, prisoner.getY() + prisoner.getHeight()/2);
+    if (dist(pLoc.x, pLoc.y, xLoc + TILESIZE/2, yLoc + TILESIZE/2) < 100) {
+      inReach = true;
+    }
+    for (var i = 0; i < otherPlayers.length; i++) {
+      if (otherPlayers[i] != null) {
+        var pLoc = createVector(otherPlayers[i].getX() + otherPlayers[i].getWidth()/2, otherPlayers[i].getY() + otherPlayers[i].getHeight()/2);
+        if (dist(pLoc.x, pLoc.y, xLoc + TILESIZE/2, yLoc + TILESIZE/2) < 100) {
+          inReach = true;
+          break;
+        }
+      }
     }
   }
   
@@ -101,7 +109,8 @@ function Tile(xLoc, yLoc, index, id) {
   }
   
   this.destroy = function(player) {
-    if (currentlyBreaking == -1 && !breaking && this.intact && breakable && inReach) {
+    console.log(inReach);
+    if ((currentlyBreaking == -1 || player != prisoner.session_id) && !breaking && this.intact && breakable && inReach) {
       breaking = true;
       breakStart = millis();
       currentlyBreaking = index;

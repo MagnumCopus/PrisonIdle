@@ -45,6 +45,7 @@ function Prisoner(session_id) {
             image(pickaxe, 0, 0, TILESIZE, TILESIZE);
             pop();
         }
+        if (frameCount % 30 == 0 && session_id == prisoner.session_id) this.emitLocation(); 
     }
     
     this.update = function() {
@@ -148,20 +149,20 @@ function Prisoner(session_id) {
         if (session_id == prisoner.session_id && loc.x + pWidth < -5) {
             currentMine = currentMine.leftRoom;
             loc.x = width + 5;
-            this.emitLocation();
+            //this.emitLocation();
             saveState();
         }
         if (session_id == prisoner.session_id && loc.y + pHeight < -5) {
-            this.emitLocation();
+            //this.emitLocation();
         }
         if (session_id == prisoner.session_id && loc.x > width + 5) {
             currentMine = currentMine.rightRoom;
             loc.x = -pWidth - 5;
-            this.emitLocation();
+            //this.emitLocation();
             saveState();
         }
         if (session_id == prisoner.session_id && loc.y > height + 5) {
-            this.emitLocation();
+            //this.emitLocation();
         }
         
         // Ladder Collisions
