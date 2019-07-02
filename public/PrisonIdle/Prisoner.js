@@ -436,7 +436,7 @@ function Prisoner(session_id) {
 
     this.resetLoc = function() {
         if (currentMine.name == mines[0].name) {
-            loc = createVector(1166, 280 - pHeight); 
+            loc = createVector(1126, 280 - pHeight); 
             direction = 'left';
         } else {
             loc = createVector(126, 280 - pHeight); 

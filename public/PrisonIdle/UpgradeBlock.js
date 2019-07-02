@@ -37,17 +37,17 @@ function UpgradeBlock(xLoc, yLoc, id) {
     
     this.displayInfo = function() {
         if (upgradeDetails[id].progression[upgradeDetails[id].current+1] != null) {
-            mines[0].infoText = upgradeDetails[id].progression[upgradeDetails[id].current+1].info;
+            shop.infoText = upgradeDetails[id].progression[upgradeDetails[id].current+1].info;
             this.displayingInfo = true;
         } else {
-            mines[0].infoText = "???";
+            shop.infoText = "???";
             this.displayingInfo = true;
         }
     }
     
     this.stopDisplaying = function() {
         if (this.displayingInfo) {
-            mines[0].infoText = "";
+            shop.infoText = "";
             this.displayingInfo = false;
         }
     }

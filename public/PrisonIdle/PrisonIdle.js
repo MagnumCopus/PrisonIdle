@@ -129,9 +129,11 @@ function preload() {
     });
 
     socket.on('resetMine', function (data) {
-        for (var j = 0; j < mines.length; j++) {
-            if (mines[j].name == data.mine) {
-                mines[j].resetMine(data.resetLength, data.tiles);
+        for (var i = 0; i < data.mines.length; i++) {
+            for (var j = 0; j < mines.length; j++) {
+                if (data.mines[i].name == mines[j].name) {
+                    mines[j].resetMine(data.resetLength, data.tiles);
+                }
             }
         }
         console.log('reset ' + data.mine);
