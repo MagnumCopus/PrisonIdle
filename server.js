@@ -13,172 +13,75 @@ var io = socket(server);
 
 io.sockets.on('connection', newConnection);
 
+var pg = require('pg');
+var connectionString = "postgres://dptvgubhnxtsxs:5224184f1cd09c8b790bcbe5b25e674607c8523c3f8ba7fe04565920e8ede778@ec2-174-129-227-80.compute-1.amazonaws.com:5432/d5paq0t8akka99?ssl=true";
+var pgClient = new pg.Client(connectionString);
+pgClient.connect();
+
+var mineData = [];
 var playerColors = ['#ff0000', '#ffa500', '#ffff00', '#00ff00', '#0000ff', '#4b0082', '#8a2be2'];
 var nextColorIndex = 0;
 var onlinePlayers = 0;
 
-// Mines
-var mineData = [
-	{
-		name: 'AMine',
-		resetLength: 3,
-		lastReset: new Date().getTime(),
-		timer: null,
-		composition: [
-			{
-				name: 'dirt',
-				percent: 70
-			},
-			{
-				name: 'stone',
-				percent: 25
-			},
-			{
-				name: 'coal',
-				percent: 5
-			}
-		],
-		tiles: null
-	},
-	{
-		name: 'BMine',
-		resetLength: 4,
-		lastReset: new Date().getTime(),
-		timer: null,
-		composition: [
-			{
-				name: 'dirt',
-				percent: 45
-			},
-			{
-				name: 'stone',
-				percent: 45
-			},
-			{
-				name: 'coal',
-				percent: 10
-			}
-		],
-		tiles: null
-	},
-	{
-		name: 'CMine',
-		resetLength: 5,
-		lastReset: new Date().getTime(),
-		timer: null,
-		composition: [
-			{
-				name: 'stone',
-				percent: 70
-			},
-			{
-				name: 'coal',
-				percent: 25
-			},
-			{
-				name: 'copper',
-				percent: 5
-			}
-		],
-		tiles: null
-	},
-	{
-		name: 'DMine',
-		resetLength: 6,
-		lastReset: new Date().getTime(),
-		timer: null,
-		composition: [
-			{
-				name: 'stone',
-				percent: 45
-			},
-			{
-				name: 'coal',
-				percent: 45
-			},
-			{
-				name: 'copper',
-				percent: 10
-			}
-		],
-		tiles: null
-	},
-	{
-		name: 'EMine',
-		resetLength: 7,
-		lastReset: new Date().getTime(),
-		timer: null,
-		composition: [
-			{
-				name: 'coal',
-				percent: 70
-			},
-			{
-				name: 'copper',
-				percent: 25
-			},
-			{
-				name: 'iron',
-				percent: 5
-			}
-		],
-		tiles: null
-	},
-	{
-		name: 'FMine',
-		resetLength: 8,
-		lastReset: new Date().getTime(),
-		timer: null,
-		composition: [
-			{
-				name: 'coal',
-				percent: 45
-			},
-			{
-				name: 'copper',
-				percent: 45
-			},
-			{
-				name: 'iron',
-				percent: 10
-			}
-		],
-		tiles: null
+// Fill in all the mines once and set their timers
+pgClient.query("SELECT COUNT(*) FROM mines", function(exc, res) {
+	for (var i = 0; i < res.rows[0].count; i++) {
+		mineData.push({});
+		resetMine(i);
 	}
-];
-
-for (var i = 0; i < mineData.length; i++) {
-	resetMine(i);
-	var timer = setInterval(resetMine, mineData[i].resetLength * 60000, i);
-	mineData[i].timer = timer;
-}
+});
 
 function resetMine(i) {
-	var tiles = [];
-	for (var j = 0; j < 220; j++) {
-		var num = Math.random() * 100;
-		var sum = 0;
-		for (var k = 0; k < mineData[i].composition.length; k++) {
-			if (num < mineData[i].composition[k].percent + sum) {
-				var tile = {
-					name: mineData[i].composition[k].name,
-					intact: true
-				};
-				tiles.push(tile);
-				break;
+	if (mineData[i]['timer'] != null) clearInterval(mineData[i]['timer']);
+	// Get new mine information and send it out
+	pgClient.query("SELECT * FROM mines WHERE ID=" + i, function(exc, res) {
+		//console.log(res);
+		var row = res.rows[0];
+		var i = row.id;
+		mineData[i]['name'] = row.name;
+	    mineData[i]['resetLength'] = row.resetlength;
+	    mineData[i]['lastReset'] = new Date().getTime();
+	    mineData[i]['composition'] = [];
+	    mineData[i]['tiles'] = [];
+	    var comp = row.composition.trim().split(' ');
+	    for (var j = 0; j < comp.length; j++) {
+	    	var data = comp[j].split(':');
+	    	mineData[i].composition.push({
+	    		name: data[0],
+	    		percent: parseInt(data[1])
+	    	});
+	    }
+	    console.log(mineData[i]);
+
+		var tiles = [];
+		for (var j = 0; j < 220; j++) {
+			var num = Math.random() * 100;
+			var sum = 0;
+			for (var k = 0; k < mineData[i].composition.length; k++) {
+				if (num < mineData[i].composition[k].percent + sum) {
+					var tile = {
+						name: mineData[i].composition[k].name,
+						intact: true
+					};
+					tiles.push(tile);
+					break;
+				}
+				sum += mineData[i].composition[k].percent;
 			}
-			sum += mineData[i].composition[k].percent;
 		}
-	}
-	mineData[i].tiles = tiles;
-	mineData[i].lastReset = new Date().getTime();
-	var data = {
-		mine: mineData[i].name,
-		resetLength: (mineData[i].resetLength * 60000),
-		tiles: tiles
-	};
-	console.log('resetting mine: ' + mineData[i].name);
-	io.emit('resetMine', data);
+		mineData[i].tiles = tiles;
+		mineData[i].lastReset = new Date().getTime();
+		var data = {
+			mine: mineData[i].name,
+			resetLength: (mineData[i].resetLength * 60000),
+			tiles: tiles
+		};
+		console.log('resetting mine: ' + mineData[i].name);
+		io.emit('resetMine', data);
+
+		var timer = setInterval(resetMine, mineData[i].resetLength * 60000, i);
+		mineData[i]['timer'] = timer;
+	});
 }
 
 function newConnection(socket) {
