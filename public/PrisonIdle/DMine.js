@@ -109,7 +109,7 @@ function DMine() {
             }
          }  
          currentlyBreaking = -1;
-         saveState();
+         //saveState();
          this.lastReset = new Date().getTime();
          console.log(resetLength);
          this.resetLength = resetLength;

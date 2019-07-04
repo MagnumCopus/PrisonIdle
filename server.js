@@ -51,7 +51,7 @@ function resetMine(i) {
 	    		percent: parseInt(data[1])
 	    	});
 	    }
-	    console.log(mineData[i]);
+	    //console.log(mineData[i]);
 
 		var tiles = [];
 		for (var j = 0; j < 220; j++) {
@@ -88,42 +88,72 @@ function newConnection(socket) {
 	console.log('new connection: ' + socket.id);
 	onlinePlayers++;
 
-	// drawing
-	socket.on('mouse', mouseMsg);
-	socket.on('reset', resetMsg);
-
-	function mouseMsg(data) {
-		socket.broadcast.emit('mouse', data);
-		//console.log(data);
-	}
-
-	function resetMsg() {
-		socket.broadcast.emit('reset');
-	}
-
 	// PrisonIdle
-	socket.on('gameLoaded', function () {
-		var d = new Date().getTime();
-		var connectionData = {
-			color: playerColors[(nextColorIndex++) % playerColors.length],
-			onlinePlayers: onlinePlayers,
-			mines: []
-		};
-		for (var i = 0; i < mineData.length; i++) {
-			connectionData.mines.push({
-				name: mineData[i].name,
-				timeSinceReset: d - mineData[i].lastReset,
-				resetLength: mineData[i].resetLength * 60000,
-				tiles: mineData[i].tiles
+	socket.on('gameLoaded', function (savekey) {
+		if (savekey == null) {
+			savekey = generateSaveKey(50);
+			pgClient.query("INSERT INTO users (savekey) VALUES ('" + savekey + "')", function(exc, res) {
+				if (exc != null) console.log(exc);
+				else console.log('user successfully added');
 			});
 		}
-		socket.emit('connectInfo', connectionData)
-		//console.log(connectionData);
 
-		var newPlayerData = {
-			onlinePlayers: onlinePlayers
-		};
-		socket.broadcast.emit('playerConnected', newPlayerData)
+		pgClient.query("SELECT * FROM users WHERE savekey='" + savekey + "'", function(exc, res) {
+			var row = res.rows[0];
+			var d = new Date().getTime();
+			var connectionData = {
+				savekey: savekey,
+				savedata: {
+					money: row.money,
+					pickaxe: row.pickaxe,
+					door: row.door,
+					currentMine: row.currentroom,
+					sellQuantity: row.sellquantity,
+					dirt: row.dirt,
+					stone: row.stone,
+					coal: row.coal,
+					copper: row.copper,
+					iron: row.iron
+				},
+				color: playerColors[(nextColorIndex++) % playerColors.length],
+				onlinePlayers: onlinePlayers,
+				mines: []
+			};
+			for (var i = 0; i < mineData.length; i++) {
+				connectionData.mines.push({
+					name: mineData[i].name,
+					timeSinceReset: d - mineData[i].lastReset,
+					resetLength: mineData[i].resetLength * 60000,
+					tiles: mineData[i].tiles
+				});
+			}
+			socket.emit('connectInfo', connectionData)
+			//console.log(connectionData);
+
+			var newPlayerData = {
+				onlinePlayers: onlinePlayers
+			};
+			socket.broadcast.emit('playerConnected', newPlayerData)
+		});
+	});
+
+	socket.on('saveGame', function (data) {
+		console.log('trying to save...');
+		var query = "UPDATE users SET money = " + data.money
+			+ ", pickaxe = " + data.pickaxe
+	        + ", door = " + data.doors
+	        + ", currentroom = '" + data.currentMine
+	        + "', sellquantity = " + data.sellQuantity
+	        + ", dirt = " + data.dirt
+	        + ", stone = " + data.stone
+	        + ", coal = " + data.coal
+	        + ", copper = " + data.copper
+	        + ", iron = " + data.iron
+	        + " WHERE savekey='" + data.savekey + "'";
+		pgClient.query(query, function(exc, res) {
+			if (exc != null) console.log(exc);
+			else console.log('player successfully saved');
+		});
 	});
 
 	socket.on('playerMoved', function (data) {
@@ -152,4 +182,14 @@ function newConnection(socket) {
 		console.log('disconnected: ' + socket.id);
 		onlinePlayers--;
 	});
+}
+
+function generateSaveKey(length) {
+	var result           = '';
+   	var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+   	var charactersLength = characters.length;
+   	for ( var i = 0; i < length; i++ ) {
+    	result += characters.charAt(Math.floor(Math.random() * charactersLength));
+   	}
+   	return result;
 }

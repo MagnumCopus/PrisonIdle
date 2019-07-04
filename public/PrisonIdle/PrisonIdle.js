@@ -57,6 +57,8 @@ function preload() {
         console.log(data);
         playerCount = data.onlinePlayers;
         
+        localStorage.setItem('savekey', JSON.stringify(data.savekey));
+
         var d = new Date().getTime();
         for (var i = 0; i < data.mines.length; i++) {
             for (var j = 0; j < mines.length; j++) {
@@ -71,6 +73,8 @@ function preload() {
         prisoner.resetLoc();
         prisoner.playerColor = data.color;
         prisoner.emitLocation();
+
+        loadState(data.savedata);
     });
 
     socket.on('playerConnected', function (data) {
@@ -180,10 +184,6 @@ function setup() {
         {name: 'pickaxe', id: 0, progression: pickaxeDetails, current: 0},
         {name: 'doors', id: 1, progression: doorDetails, current: 0}
     ];
-    
-    this.inventory.push(new SellBlock(80, 120, 0));
-    this.inventory.push(new SellBlock(160, 120, 1));
-    this.inventory.push(new SellBlock(240, 120, 2));
 
     console.log('making mines');
     mines.push(new Shop());
@@ -208,17 +208,17 @@ function setup() {
     mines[5].setRightRoom(mines[6]);
     mines[6].setLeftRoom(mines[5]);
     
+    console.log('setting to amine');
     currentMine = mines[1];
     
-    loadState();
-    
     console.log('game loaded');
-    socket.emit('gameLoaded');
+    socket.emit('gameLoaded', JSON.parse(localStorage.getItem('savekey')));
 }
 
 function draw() {
     background(0);
-    
+    //frameRate(30);
+
     currentMine.display();
     currentMine.update();
     
@@ -273,52 +273,47 @@ function draw() {
     textAlign(LEFT, BASELINE);
     text(parseInt(frames / lastFrames.length, 10), 1253, 25);
     
-    if (frameCount % 360 == 0) saveState();
+    if (frameCount != 0 && frameCount % 1800 == 0) saveState();
 }
 
 function saveState() {
+    var data = {
+        savekey: JSON.parse(localStorage.getItem('savekey')),
+        money: money,
+        pickaxe: upgradeDetails[0].current,
+        doors: upgradeDetails[1].current,
+        currentMine: currentMine.name,
+        sellQuantity: (sellQuantity == 'All') ? -1 : sellQuantity,
+        dirt: tileDetails[0].count,
+        stone: tileDetails[1].count,
+        coal: tileDetails[2].count,
+        copper: tileDetails[3].count,
+        iron: tileDetails[4].count
+    };
+    socket.emit('saveGame', data);
     console.log("Saved.");
-    localStorage.setItem('money', JSON.stringify(money));
-    localStorage.setItem('pickaxe', JSON.stringify(upgradeDetails[0].current));
-    localStorage.setItem('doors', JSON.stringify(upgradeDetails[1].current));
-    localStorage.setItem('currentMine', JSON.stringify(currentMine.name));
-    localStorage.setItem('sellQuantity', JSON.stringify(sellQuantity));
-    localStorage.setItem('dirtCount', JSON.stringify(tileDetails[0].count));
-    localStorage.setItem('stoneCount', JSON.stringify(tileDetails[1].count));
-    localStorage.setItem('coalCount', JSON.stringify(tileDetails[2].count));
-    localStorage.setItem('copperCount', JSON.stringify(tileDetails[3].count));
-    localStorage.setItem('ironCount', JSON.stringify(tileDetails[4].count));
 }
 
-function loadState() {
-    //localStorage.removeItem('AReset');
-    if (JSON.parse(localStorage.getItem('money')) != null) money = parseFloat(JSON.parse(localStorage.getItem('money')));
-    if (JSON.parse(localStorage.getItem('doors')) != null) {
-        upgradeDetails[1].current = parseInt(JSON.parse(localStorage.getItem('doors')));
-        for (var i = 1; i < upgradeDetails[1].current+1; i++) {
-             upgradeDetails[1].progression[i].door.openDoor();
+function loadState(saveData) {
+    money = parseFloat(saveData.money);
+    upgradeDetails[0].current = parseInt(saveData.pickaxe);
+    upgradeDetails[1].current = parseInt(saveData.door);
+    console.log(saveData.currentMine);
+    for (var i = 0; i < mines.length; i++) {
+        console.log(saveData.currentMine + " = " + mines[i].name);
+        if (saveData.currentMine.trim() == mines[i].name) {
+            console.log(mines[i].name);
+            currentMine = mines[i];
+            break;
         }
     }
-    if (JSON.parse(localStorage.getItem('pickaxe')) != null) {
-        upgradeDetails[0].current = parseInt(JSON.parse(localStorage.getItem('pickaxe')));
-        miningSpeed = upgradeDetails[0].progression[upgradeDetails[0].current].miningSpeed;   
-    }
-    if (JSON.parse(localStorage.getItem('currentMine')) != null) var mineName = JSON.parse(localStorage.getItem('currentMine'));
-    for (var j = 0; j < mines.length; j++) {
-        if (mineName == mines[j].name) {
-            currentMine = mines[j];
-        }
-    }
-    if (JSON.parse(localStorage.getItem('sellQuantity')) != null) {
-        if (JSON.parse(localStorage.getItem('sellQuantity')) == "All") sellQuantity = "All";
-        else sellQuantity = parseInt(JSON.parse(localStorage.getItem('sellQuantity')));
-    }
-    if (JSON.parse(localStorage.getItem('dirtCount')) != null) tileDetails[0].count = parseInt(JSON.parse(localStorage.getItem('dirtCount')));
-    if (JSON.parse(localStorage.getItem('stoneCount')) != null) tileDetails[1].count = parseInt(JSON.parse(localStorage.getItem('stoneCount')));
-    if (JSON.parse(localStorage.getItem('coalCount')) != null) tileDetails[2].count = parseInt(JSON.parse(localStorage.getItem('coalCount')));
-    if (JSON.parse(localStorage.getItem('copperCount')) != null) tileDetails[3].count = parseInt(JSON.parse(localStorage.getItem('copperCount')));
-    if (JSON.parse(localStorage.getItem('ironCount')) != null) tileDetails[4].count = parseInt(JSON.parse(localStorage.getItem('ironCount')));
-    //console.log(currentMine.tiles);
+    prisoner.resetLoc();
+    sellQuantity = (saveData.sellQuantity == -1) ? 'All' : parseInt(saveData.sellQuantity);
+    tileDetails[0].count = parseInt(saveData.dirt);
+    tileDetails[1].count = parseInt(saveData.stone);
+    tileDetails[2].count = parseInt(saveData.coal);
+    tileDetails[3].count = parseInt(saveData.copper);
+    tileDetails[4].count = parseInt(saveData.iron);
 }
 
 function mousePressed() {
