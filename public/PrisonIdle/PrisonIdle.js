@@ -43,6 +43,8 @@ var coalSprite;
 var copperSprite;
 var ironSprite;
 
+var dirtBackground;
+
 var woodenPickaxeSprite;
 var stonePickaxeSprite;
 var copperPickaxeSprite;
@@ -129,6 +131,8 @@ function setup() {
     copperSprite = loadImage('Resources/copper.png');
     ironSprite = loadImage('Resources/iron.png');
     
+    dirtBackground = loadImage('Resources/dirtBackground.png');
+
     woodenPickaxeSprite = loadImage('Resources/woodenPickaxe.png');
     stonePickaxeSprite = loadImage('Resources/stonePickaxe.png');
     copperPickaxeSprite = loadImage('Resources/copperPickaxe.png');
