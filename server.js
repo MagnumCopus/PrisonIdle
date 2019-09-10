@@ -51,12 +51,12 @@ setInterval(function () {
 	for (var i = 0; i < onlinePlayerCount; i++) {
 		try {
 			var player = connectedPlayers[listOfIds[i]];
-			for (var j = 0; j < 5 && player != null && player.queuedInputCount > 0; j++) {
+			for (var j = 0; j < 10 && player != null && player.queuedInputCount > 0; j++) {
 				player.loc = movement.movePlayer(player.queuedInputs[0], 1000 / updatesPerSecond, player.loc);
 				player.lastInputSequence = player.queuedInputs[0].sequence;
 				player.queuedInputs.shift();
 				player.queuedInputCount--;
-				console.log('input processed: ' + player.loc.x + ', ' + player.loc.y);
+				//console.log('input processed: ' + player.loc.x + ', ' + player.loc.y);
 			}
 			playerLocations.push({
 				id: player.socket.id,
