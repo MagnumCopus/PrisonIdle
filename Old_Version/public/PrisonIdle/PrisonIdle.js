@@ -2,6 +2,7 @@
 var socket;
 var connectionData;
 var otherPlayers = [];
+var players = {};
 var playerCount = 0;
 
 var prisoner;
@@ -72,7 +73,13 @@ function preload() {
         prisoner = new Prisoner();
         prisoner.resetLoc();
         prisoner.playerColor = data.color;
-        prisoner.emitLocation();
+
+        setInterval(function() {
+          socket.emit('movement', movement);
+        }, 1000 / 66);
+        //console.log(socket.id);
+        players[socket.id] = { x: 300, y: 300 };
+        //prisoner.emitLocation();
 
         loadState(data.savedata);
     });
@@ -84,6 +91,26 @@ function preload() {
     });
 
     socket.on('playerMoved', updateOtherPlayerLocation);
+
+    var sumX = 0;
+    var sumY = 0;
+    var tally = 0;
+    socket.on('state', function(data) {
+        var xDiff, yDiff;
+        if (players[socket.id] != null) {
+            xDiff = players[socket.id].x;
+            yDiff = players[socket.id].y;
+        }
+        players = data;
+        if (players[socket.id] != null) {
+            xDiff -= players[socket.id].x;
+            yDiff -= players[socket.id].y;
+        }
+        sumX += xDiff;
+        sumY += yDiff;
+        tally++;
+        //console.log((sumX / tally) + ' ' + (sumY / tally));
+    });
 
     socket.on('breakBlock', function (data) {
         for (var j = 0; j < mines.length; j++) {
@@ -215,7 +242,34 @@ function setup() {
     socket.emit('gameLoaded', JSON.parse(localStorage.getItem('savekey')));
 }
 
+var lastDraw = new Date().getTime();
 function draw() {
+    background(0);
+
+    var dTime = (new Date().getTime() - lastDraw) / 1000;
+    if (socket.id != null && players[socket.id] != null) {
+        if (movement.left) {
+          players[socket.id].x -= 240 * dTime;
+        }
+        if (movement.up) {
+          players[socket.id].y -= 240 * dTime;
+        }
+        if (movement.right) {
+          players[socket.id].x += 240 * dTime;
+        }
+        if (movement.down) {
+          players[socket.id].y += 240 * dTime;
+        }
+    }
+
+    fill(255);
+    for (var id in players) {
+        var player = players[id];
+        rect(player.x, player.y, 32, 67);
+    }
+    lastDraw = new Date().getTime();
+
+    /*
     background(0);
     //frameRate(30);
 
@@ -260,8 +314,8 @@ function draw() {
     }
 
     if (prisoner != null) {
-        prisoner.display();
-        prisoner.update();
+        //prisoner.display();
+        //prisoner.update();
     }
     
     fill(255);
@@ -273,7 +327,7 @@ function draw() {
     textAlign(LEFT, BASELINE);
     text(parseInt(frames / lastFrames.length, 10), 1253, 25);
     
-    if (frameCount != 0 && frameCount % 1800 == 0) saveState();
+    if (frameCount != 0 && frameCount % 1800 == 0) saveState();*/
 }
 
 function saveState() {
@@ -346,6 +400,47 @@ function mouseDragged() {
             currentMine.tiles[lastSelectedTile].destroy();
             currentlyBreaking = lastSelectedTile;
         }
+    }
+}
+
+var movement = {
+    up: false,
+    down: false,
+    left: false,
+    right: false
+};
+
+function keyPressed() {
+    switch (key) {
+        case 'A': // A
+              movement.left = true;
+              break;
+        case 'W': // W
+              movement.up = true;
+              break;
+        case 'D': // D
+              movement.right = true;
+              break;
+        case 'S': // S
+            movement.down = true;
+            break;
+    }
+}
+
+function keyReleased() {
+    switch (key) {
+        case 'A': // A
+              movement.left = false;
+              break;
+        case 'W': // W
+              movement.up = false;
+              break;
+        case 'D': // D
+              movement.right = false;
+              break;
+        case 'S': // S
+            movement.down = false;
+            break;
     }
 }
 
