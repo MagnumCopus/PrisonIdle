@@ -59,6 +59,8 @@ function AMine() {
          fill(34, 34, 34);
          text(formattedHours + ":" + formattedMins + ":" + formattedSecs, 633, 235);
          
+         image(dirtBackground, 0, 280);
+
          for (var i = 0; i < this.sellBlocks.length; i++) {
              this.sellBlocks[i].display();
          }
