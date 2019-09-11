@@ -31,6 +31,10 @@ io.sockets.on('connection', function (socket) {
 		connectedPlayers[socket.id].queuedInputCount++;
 	});
 
+	socket.on('pinged', function () {
+    	socket.emit('ponged');
+  	});
+
 	socket.on('disconnect', function () {
 		connectedPlayers.splice(socket.id);
 		for (var i = 0; i < listOfIds.length; i++) {

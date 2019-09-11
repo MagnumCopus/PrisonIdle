@@ -1,6 +1,8 @@
 
 var socket;
 
+var pingStart;
+var latency = 0;
 var lastFrames = [];
 
 var loc;
@@ -25,6 +27,17 @@ function preload() {
             }
         }
     });
+
+    // Ping pong to get the ping of the client
+    setInterval(function() {
+        pingStart = Date.now();
+        socket.emit('pinged');
+    }, 2000);
+
+    socket.on('ponged', function() {
+        latency = Date.now() - pingStart;
+        console.log(latency);
+    });
 }
 
 function setup() {
@@ -41,6 +54,7 @@ function draw() {
     readInput();
 
     drawFramerate();
+    drawPing();
 }
 
 function drawPlayers() {
@@ -127,4 +141,12 @@ function drawFramerate() {
     textSize(12);
     textAlign(LEFT, BASELINE);
     text(parseInt(frames / lastFrames.length, 10), 1253, 25);
+}
+
+function drawPing() {
+    // Display the framerate
+    fill(255);
+    textSize(12);
+    textAlign(LEFT, BASELINE);
+    text(parseInt(latency / 2, 10) + ' ms', 20, 25);
 }
