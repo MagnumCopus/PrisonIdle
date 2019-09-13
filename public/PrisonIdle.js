@@ -6,6 +6,7 @@ var latency = 0;
 var lastFrames = [];
 
 var loc;
+var vel;
 var sequenceCount = 0;
 var inputHistory = [];
 var movementDelayQueue = [];
@@ -13,7 +14,7 @@ var movementDelayQueue = [];
 //var serverLoc;
 //var lastInputProcessed;
 
-var localPlayerLocations = [];
+var players = [];
 var serverPlayerLocations = [];
 
 function preload() {
@@ -22,13 +23,13 @@ function preload() {
     socket.on('playerLocations', function(playerLocations) {
         serverPlayerLocations = playerLocations;
         for (var i = 0; i < playerLocations.length; i++) {
-            if (localPlayerLocations[playerLocations[i].id] == null && playerLocations[i].id != socket.id) {
-                localPlayerLocations[playerLocations[i].id] = playerLocations[i];
+            if (players[playerLocations[i].id] == null && playerLocations[i].id != socket.id) {
+                players[playerLocations[i].id] = playerLocations[i];
             }
         }
     });
 
-    // Ping pong to get the ping of the client
+    // Fetch the ping of the client
     setInterval(function() {
         pingStart = Date.now();
         socket.emit('pinged');
@@ -36,14 +37,15 @@ function preload() {
 
     socket.on('ponged', function() {
         latency = Date.now() - pingStart;
-        console.log(latency);
     });
 }
 
 function setup() {
     createCanvas(1280, 720);
+    frameRate(60);
 
     loc = createVector(100, 100);
+    vel = createVector(0, 0);
 }
 
 function draw() {
@@ -65,14 +67,13 @@ function drawPlayers() {
         var id = serverPlayerLocations[i].id;
         if (id != socket.id) {
             fill(175)
-            console.log(localPlayerLocations[id].loc.x, localPlayerLocations[id].loc.y);
-            ellipse(localPlayerLocations[id].loc.x, localPlayerLocations[id].loc.y, 50, 50);
+            rect(players[id].loc.x, players[id].loc.y, 32, 67);
         }
     }
 
     // Draw the main player
     fill(230);
-    ellipse(loc.x, loc.y, 50, 50);
+    rect(loc.x, loc.y, 32, 67);
 }
 
 function updatePlayerLocations() {
@@ -81,54 +82,52 @@ function updatePlayerLocations() {
         // Main player - Take the location sent by the server and reapply old inputs to calculate if still in the correct position. Corrects if necessary.
         if (id == socket.id) {
             var serverLoc = serverPlayerLocations[i].loc;
-            var lastInputProcessed = serverPlayerLocations[i].lastInputSequence;
+            var serverVel = serverPlayerLocations[i].vel;
+            var lastInputProcessed = serverPlayerLocations[i].lastInputProcessed;
             if (serverLoc != null && (Math.floor(loc.x) != Math.floor(serverLoc.x) || Math.floor(loc.y) != Math.floor(serverLoc.y))) {
                 var newLoc = createVector(serverLoc.x, serverLoc.y);
+                var newVel = createVector(serverVel.x, serverVel.y);
                 while (inputHistory.length > 0) {
-                    if (inputHistory[0].sequence <= lastInputProcessed) inputHistory.shift();
+                    if (inputHistory[0].sequence < lastInputProcessed) inputHistory.shift();
                     else break;
                 }
-                for (var i = 0; i < inputHistory.length; i++) {
-                    var calcLoc = playermovement.movePlayer({left: inputHistory[i].left, up: inputHistory[i].up, right: inputHistory[i].right, down: inputHistory[i].down}, 1000 / frameRate(), {x: newLoc.x, y: newLoc.y});
-                    newLoc.x = calcLoc.x;
-                    newLoc.y = calcLoc.y;
+                while (lastInputProcessed < frameCount && inputHistory.length > 0) {
+                    var calcState = playermovement.applyInput({left: inputHistory[0].left, up: inputHistory[0].up, right: inputHistory[0].right, down: inputHistory[0].down}, inputHistory[i].dtime, {loc: {x: newLoc.x, y: newLoc.y}, vel: {x: newVel.x, y: newVel.y}}, {width: 32, height: 67});
+                    inputHistory.shift();
+                    newLoc = createVector(calcState.loc.x, calcState.loc.y);
+                    newVel = createVector(calcState.vel.x, calcState.vel.y);
+                    lastInputProcessed++
                 }
+                //fill(150);
+                //rect(serverLoc.x, serverLoc.y, 32, 67);
                 loc = p5.Vector.lerp(loc, newLoc, .1);
+                vel = p5.Vector.lerp(vel, newVel, .1);
             }
         } 
         // All other players - Interpolate from current position to where it should be
         else {
             var newLoc = p5.Vector.lerp(
-                createVector(localPlayerLocations[id].loc.x, localPlayerLocations[id].loc.y),
+                createVector(players[id].loc.x, players[id].loc.y),
                 createVector(serverPlayerLocations[i].loc.x, serverPlayerLocations[i].loc.y), .1);
-            localPlayerLocations[id].loc.x = newLoc.x;
-            localPlayerLocations[id].loc.y = newLoc.y;
+            players[id].loc.x = newLoc.x;
+            players[id].loc.y = newLoc.y;
         }
     }
 }
 
 function readInput() {
-    // Reads in all of the inputs, makes client side predictions and sends the inputs to the server
-    if (keyIsDown(65) || keyIsDown(87) || keyIsDown(68) || keyIsDown(83)) {
-        var newLoc = playermovement.movePlayer({left: keyIsDown(65), up: keyIsDown(87), right: keyIsDown(68), down: keyIsDown(83)}, 1000 / frameRate(), {x: loc.x, y: loc.y});
-        loc.x = newLoc.x;
-        loc.y = newLoc.y;
-        //console.log('client location: ' + loc.x + ', ' + loc.y);
-        inputHistory.push({sequence: sequenceCount, left: keyIsDown(65), up: keyIsDown(87), right: keyIsDown(68), down: keyIsDown(83)});
-        //movementDelayQueue.push({sequence: sequenceCount, frame: frameCount, left: keyIsDown(65), up: keyIsDown(87), right: keyIsDown(68), down: keyIsDown(83)});
-        socket.emit('input', {sequence: sequenceCount, left: keyIsDown(65), up: keyIsDown(87), right: keyIsDown(68), down: keyIsDown(83)})
-        sequenceCount++
-    }
-
-    // Used to fake a high ping
-    var ping = 0;
-    if (movementDelayQueue.length > 0) {
-        var movement = movementDelayQueue[0];
-        if (frameCount - movement.frame >= ping / 1000 * frameRate()) {
-            socket.emit('input', {sequence: movement.sequence, left: movement.left, up: movement.up, right: movement.right, down: movement.down});
-            movementDelayQueue.shift();
-        }
-    }
+    // Reads in all of the inputs and sends the inputs to the server
+    var dTime = 1000 / frameRate();
+    var leftPressed = keyIsDown(65);
+    var upPressed = keyIsDown(87);
+    var rightPressed = keyIsDown(68);
+    var downPressed = keyIsDown(83);
+    inputHistory.push({sequence: frameCount, dtime: dTime, left: leftPressed, up: upPressed, right: rightPressed, down: downPressed});
+    socket.emit('input', {sequence: frameCount, dtime: dTime, left: leftPressed, up: upPressed, right: rightPressed, down: downPressed})
+    // Predict where the player should be
+    var newState = playermovement.applyInput({left: leftPressed, up: upPressed, right: rightPressed, down: downPressed}, dTime, {loc: {x: loc.x, y: loc.y}, vel: {x: vel.x, y: vel.y}}, {width: 32, height: 67});
+    loc = createVector(newState.loc.x, newState.loc.y);
+    vel = createVector(newState.vel.x, newState.vel.y);
 }
 
 function drawFramerate() {

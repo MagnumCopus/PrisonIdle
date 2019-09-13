@@ -20,7 +20,7 @@ var connectedPlayers = [];
 
 // Setup a new connection (DOESNT SEND ANY DATA)
 io.sockets.on('connection', function (socket) {
-	connectedPlayers[socket.id] = {socket: socket, loc: {x: 100, y: 100}, queuedInputs: [], queuedInputCount: 0, lastInputSequence: -1};
+	connectedPlayers[socket.id] = {socket: socket, state: {loc: {x: 100, y: 100}, vel: {x: 0, y: 0}}, queuedInputs: [], queuedInputCount: 0, lastInputProcessed: -1};
 	listOfIds.push(socket.id);
 	onlinePlayerCount++;
 	console.log('new connection (' + onlinePlayerCount + '): ' + socket.id);
@@ -49,28 +49,31 @@ io.sockets.on('connection', function (socket) {
 });
 
 // Core update loop
-var updatesPerSecond = 10;
+var updatesPerSecond = 20;
 setInterval(function () {
-	var playerLocations = [];
+	var playerStates = [];
 	for (var i = 0; i < onlinePlayerCount; i++) {
 		try {
 			var player = connectedPlayers[listOfIds[i]];
-			for (var j = 0; j < 10 && player != null && player.queuedInputCount > 0; j++) {
-				player.loc = movement.movePlayer(player.queuedInputs[0], 1000 / updatesPerSecond, player.loc);
-				player.lastInputSequence = player.queuedInputs[0].sequence;
+
+			// Apply any queued inputs
+			while (player.queuedInputCount > 0) {
+				player.state = movement.applyInput(player.queuedInputs[0], player.queuedInputs[0].dtime, player.state, {width: 32, height: 67});
+				player.lastInputProcessed = player.queuedInputs[0].sequence;
 				player.queuedInputs.shift();
 				player.queuedInputCount--;
-				//console.log('input processed: ' + player.loc.x + ', ' + player.loc.y);
 			}
-			playerLocations.push({
+
+			// Prep the updated player object to be sent out
+			playerStates.push({
 				id: player.socket.id,
-				lastInputSequence: player.lastInputSequence,
-				loc: player.loc
+				lastInputProcessed: player.lastInputProcessed,
+				loc: player.state.loc,
+				vel: player.state.vel
 			});
 		} catch (err) {};
 	}
 
 	// Call this once at the end of the function to update all player locations
-	//console.log(playerLocations);
-	io.emit('playerLocations', playerLocations);
+	io.emit('playerLocations', playerStates);
 }, 1000 / updatesPerSecond);
