@@ -122,10 +122,17 @@ function readInput() {
     var upPressed = keyIsDown(87);
     var rightPressed = keyIsDown(68);
     var downPressed = keyIsDown(83);
-    inputHistory.push({sequence: frameCount, dtime: dTime, left: leftPressed, up: upPressed, right: rightPressed, down: downPressed});
-    socket.emit('input', {sequence: frameCount, dtime: dTime, left: leftPressed, up: upPressed, right: rightPressed, down: downPressed})
-    // Predict where the player should be
-    var newState = playermovement.applyInput({left: leftPressed, up: upPressed, right: rightPressed, down: downPressed}, dTime, {loc: {x: loc.x, y: loc.y}, vel: {x: vel.x, y: vel.y}}, {width: 32, height: 67});
+    if (leftPressed || upPressed || rightPressed || downPressed) {
+        inputHistory.push({sequence: frameCount, dtime: dTime, left: leftPressed, up: upPressed, right: rightPressed, down: downPressed});
+        socket.emit('input', {sequence: frameCount, dtime: dTime, left: leftPressed, up: upPressed, right: rightPressed, down: downPressed})
+        // Predict where the player should be
+        var newState = playermovement.applyInput({left: leftPressed, up: upPressed, right: rightPressed, down: downPressed}, dTime, {loc: {x: loc.x, y: loc.y}, vel: {x: vel.x, y: vel.y}}, {width: 32, height: 67});
+        loc = createVector(newState.loc.x, newState.loc.y);
+        vel = createVector(newState.vel.x, newState.vel.y);
+    }
+
+    // Apply physics locally
+    var newState = playermovement.applyPhysics(dTime, {loc: {x: loc.x, y: loc.y}, vel: {x: vel.x, y: vel.y}}, {width: 32, height: 67});
     loc = createVector(newState.loc.x, newState.loc.y);
     vel = createVector(newState.vel.x, newState.vel.y);
 }

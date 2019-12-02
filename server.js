@@ -26,9 +26,13 @@ io.sockets.on('connection', function (socket) {
 	console.log('new connection (' + onlinePlayerCount + '): ' + socket.id);
 
 	socket.on('input', function (input) {
-		connectedPlayers[socket.id].queuedInputs.push(input);
+		//connectedPlayers[socket.id].queuedInputs.push(input);
 		//console.log(input);
-		connectedPlayers[socket.id].queuedInputCount++;
+		//connectedPlayers[socket.id].queuedInputCount++;
+		player.state = movement.applyInput(input, input.dtime, player.state, {width: 32, height: 67});
+		//player.lastInputProcessed = player.queuedInputs[0].sequence;
+		//player.queuedInputs.shift();
+		//player.queuedInputCount--;
 	});
 
 	socket.on('pinged', function () {
@@ -56,13 +60,15 @@ setInterval(function () {
 		try {
 			var player = connectedPlayers[listOfIds[i]];
 
+			player.state = movement.applyPhysics(1000 / updatesPerSecond, player.state, {width: 32, height: 67});
+			console.log(player.state.loc);
 			// Apply any queued inputs
-			while (player.queuedInputCount > 0) {
-				player.state = movement.applyInput(player.queuedInputs[0], player.queuedInputs[0].dtime, player.state, {width: 32, height: 67});
-				player.lastInputProcessed = player.queuedInputs[0].sequence;
-				player.queuedInputs.shift();
-				player.queuedInputCount--;
-			}
+			//while (player.queuedInputCount > 0) {
+				//player.state = movement.applyInput(player.queuedInputs[0], player.queuedInputs[0].dtime, player.state, {width: 32, height: 67});
+				//player.lastInputProcessed = player.queuedInputs[0].sequence;
+				//player.queuedInputs.shift();
+				//player.queuedInputCount--;
+			//}
 
 			// Prep the updated player object to be sent out
 			playerStates.push({

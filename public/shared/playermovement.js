@@ -7,13 +7,20 @@
     var groundFriction = 1.15;
     var airFriction = .062;
 
-    exports.applyInput = function(input, dTime, state, dimensions){
+    exports.applyPhysics = function(dTime, state, dimensions) {
+        applyGravity(dTime, state);
+        //if (checkOnFloor(state, dimensions) && ((input.right && input.left) || (!input.right && !input.left))) applyFriction(input, dTime, state, dimensions);
+
+        state = checkHorizontalBounds(state, dimensions);
+        state = checkVerticalBounds(state, dimensions);
+
+        return state;
+    };
+
+    exports.applyInput = function(input, dTime, state, dimensions) {
         if (input.left && !input.right) state = moveLeft(dTime, state, dimensions);
         if (input.right && !input.left) state = moveRight(dTime, state, dimensions);
         if (input.up) state = jump(dTime, state, dimensions);
-
-        applyGravity(dTime, state);
-        if (checkOnFloor(state, dimensions) && ((input.right && input.left) || (!input.right && !input.left))) applyFriction(input, dTime, state, dimensions);
 
         state = checkHorizontalBounds(state, dimensions);
         state = checkVerticalBounds(state, dimensions);
