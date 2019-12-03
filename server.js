@@ -14,7 +14,7 @@ var io = socket(server);
 io.sockets.on('connection', newConnection);
 
 var pg = require('pg');
-var connectionString = "postgres://dptvgubhnxtsxs:5224184f1cd09c8b790bcbe5b25e674607c8523c3f8ba7fe04565920e8ede778@ec2-174-129-227-80.compute-1.amazonaws.com:5432/d5paq0t8akka99?ssl=true";
+var connectionString = "postgres://xiaugxggeulqec:dd8d182d239965355bf8f2470e0447ff6f40d760a7f2f9991c1321ef818eef7f@ec2-107-20-243-220.compute-1.amazonaws.com:5432/d5biffl9ngurdf?ssl=true";
 var pgClient = new pg.Client(connectionString);
 pgClient.connect();
 
